@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.service;
+package edu.architect_711.wordsapp.service.account;
 
 import edu.architect_711.wordsapp.model.dto.AccountDto;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;

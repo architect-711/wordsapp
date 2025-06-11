@@ -2,7 +2,7 @@ package edu.architect_711.wordsapp.controller;
 
 import edu.architect_711.wordsapp.model.dto.AccountDto;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
-import edu.architect_711.wordsapp.service.AccountService;
+import edu.architect_711.wordsapp.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
