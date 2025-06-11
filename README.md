@@ -15,3 +15,13 @@ Search in `/docs/` folder for the Yaak json config.
 As of today the app is in development mode, so the only one way is to
 <b>pull source code</b>. You need Java 23 and PostreSQL installed. Then visit 
 `/src/main/resources/application.properties` file to configure database connection.
+
+## Tech Stack
+* Spring boot
+* PostgreSQL
+
+## Project Structure
+* /controller - contains all controllers
+* /model - contains the dto, db, mapper folders, for DTOs, @Entity's and their mappers respectively
+* /repository - contains all repository interfaces
+* /service - contains all services in their subdirectories, each service <b>MUST</b> has its own interface with javadoc
