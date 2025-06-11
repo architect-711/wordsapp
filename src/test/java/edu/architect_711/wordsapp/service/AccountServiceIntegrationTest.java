@@ -3,6 +3,7 @@ package edu.architect_711.wordsapp.service;
 import edu.architect_711.wordsapp.model.dto.AccountDto;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
 import edu.architect_711.wordsapp.repository.AccountRepository;
+import edu.architect_711.wordsapp.service.account.DefaultAccountService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.*;
