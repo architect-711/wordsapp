@@ -1,0 +1,230 @@
+{
+  "yaakVersion": "2025.4.0",
+  "yaakSchema": 4,
+  "timestamp": "2025-06-11T11:30:26.382430136",
+  "resources": {
+    "workspaces": [
+      {
+        "model": "workspace",
+        "id": "wk_TbHMSNWFxH",
+        "createdAt": "2025-06-11T11:19:34.810711794",
+        "updatedAt": "2025-06-11T11:28:45.642777916",
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "wordsapp",
+        "encryptionKeyChallenge": null,
+        "settingValidateCertificates": true,
+        "settingFollowRedirects": true,
+        "settingRequestTimeout": 0
+      }
+    ],
+    "environments": [
+      {
+        "model": "environment",
+        "id": "ev_8Q4z2LFeYZ",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "createdAt": "2025-06-11T11:21:16.793294660",
+        "updatedAt": "2025-06-11T11:22:02.763286369",
+        "name": "wordsapp env",
+        "public": false,
+        "base": false,
+        "variables": [
+          {
+            "enabled": true,
+            "name": "url",
+            "value": "http://localhost:8080/api",
+            "id": "6CIfTS2b4Y"
+          },
+          {
+            "enabled": true,
+            "name": "account",
+            "value": "accounts",
+            "id": "vv5mC98zn5"
+          },
+          {
+            "enabled": true,
+            "name": "languages",
+            "value": "languages",
+            "id": "METdWd92wG"
+          }
+        ],
+        "color": null
+      },
+      {
+        "model": "environment",
+        "id": "ev_5Yc2i3LqSu",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "createdAt": "2025-06-11T11:19:35.104477555",
+        "updatedAt": "2025-06-11T11:19:35.104478066",
+        "name": "Global Variables",
+        "public": false,
+        "base": true,
+        "variables": [],
+        "color": null
+      }
+    ],
+    "folders": [
+      {
+        "model": "folder",
+        "id": "fl_pUduBBLGdw",
+        "createdAt": "2025-06-11T11:27:06.908240857",
+        "updatedAt": "2025-06-11T11:27:06.908241368",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_7vyAihnHiN",
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "languages",
+        "sortPriority": -1749641200000.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_pQuyavhL6F",
+        "createdAt": "2025-06-11T11:20:27.726914104",
+        "updatedAt": "2025-06-11T11:20:27.726914625",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_7vyAihnHiN",
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "account",
+        "sortPriority": -1749640800000.0
+      },
+      {
+        "model": "folder",
+        "id": "fl_7vyAihnHiN",
+        "createdAt": "2025-06-11T11:20:04.484348049",
+        "updatedAt": "2025-06-11T11:20:04.484348530",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": null,
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "wordsapp",
+        "sortPriority": -1749640800000.0
+      }
+    ],
+    "httpRequests": [
+      {
+        "model": "http_request",
+        "id": "rq_PriuxDU6Hr",
+        "createdAt": "2025-06-11T11:27:11.834704899",
+        "updatedAt": "2025-06-11T11:27:40.596256036",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_pUduBBLGdw",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [],
+        "method": "GET",
+        "name": "get all",
+        "sortPriority": -0.00030000000000000003,
+        "url": "${[ url ]}/${[ languages ]}",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_bbF4rd6FeN",
+        "createdAt": "2025-06-11T11:20:57.194385726",
+        "updatedAt": "2025-06-11T11:24:23.317590807",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_pQuyavhL6F",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"username\": \"volodimir228\",\n  \"email\": \"volodya@mail.edu\",\n  \"password\": \"12345\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "UM0AZ4YcvI"
+          }
+        ],
+        "method": "POST",
+        "name": "save",
+        "sortPriority": -0.00030000000000000003,
+        "url": "${[ url ]}/${[ account ]}",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_Vx5Q3sqDFW",
+        "createdAt": "2025-06-11T11:20:51.664578790",
+        "updatedAt": "2025-06-11T11:26:58.634141350",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_pQuyavhL6F",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"id\": 28,\n  \"username\": \"new_email@gmail.ru\",\n  \"email\": \"malolyk@gogamagoga.asdf\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "IzNHxG9uF4"
+          }
+        ],
+        "method": "PUT",
+        "name": "update",
+        "sortPriority": -0.0002,
+        "url": "${[ url ]}/${[ account ]}",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_BuG4oZpE5P",
+        "createdAt": "2025-06-11T11:20:40.564835696",
+        "updatedAt": "2025-06-11T11:25:05.455409313",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_pQuyavhL6F",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [],
+        "method": "DELETE",
+        "name": "delete by id",
+        "sortPriority": -0.0001,
+        "url": "${[ url ]}/${[ account ]}/56",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_Ggsiz3Ldwq",
+        "createdAt": "2025-06-11T11:19:55.755253802",
+        "updatedAt": "2025-06-11T11:24:47.236083091",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_pQuyavhL6F",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [],
+        "method": "GET",
+        "name": "get by id",
+        "sortPriority": 0.0,
+        "url": "${[ url ]}/${[ account ]}/56",
+        "urlParameters": []
+      }
+    ],
+    "grpcRequests": [],
+    "websocketRequests": []
+  }
+}
