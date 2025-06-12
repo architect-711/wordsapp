@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.security;
+package edu.architect_711.wordsapp.service.account;
 
 import edu.architect_711.wordsapp.model.dto.AccountDetails;
 import edu.architect_711.wordsapp.model.entity.Account;
