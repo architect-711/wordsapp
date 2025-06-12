@@ -1,5 +1,6 @@
 package edu.architect_711.wordsapp.service;
 
+import edu.architect_711.wordsapp.model.dto.AccountDetails;
 import edu.architect_711.wordsapp.model.dto.AccountDto;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
 import edu.architect_711.wordsapp.repository.AccountRepository;
@@ -10,8 +11,12 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +30,14 @@ public class AccountServiceIntegrationTest {
     private AccountRepository accountRepository;
 
     public final SaveAccountDto UNEXISTING_ACCOUNT = new SaveAccountDto("test_" +LocalDateTime.now(), "1234", LocalDateTime.now() + "_name@domain.tld");
+
+    @BeforeAll
+    public void setup() {
+        var accountDetails = new AccountDetails(UNEXISTING_ACCOUNT.getUsername(), UNEXISTING_ACCOUNT.getPassword(), List.of());
+        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(accountDetails, UNEXISTING_ACCOUNT.getPassword(), List.of());
+
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+    }
 
     private AccountDto savedBuff;
 
@@ -51,17 +64,12 @@ public class AccountServiceIntegrationTest {
     @Test @Order(4)
     @Transactional
     public void should_ok__get_saved_by_id() {
-        AccountDto account = assertDoesNotThrow(() -> defaultAccountService.get(savedBuff.getId()));
+        AccountDto account = assertDoesNotThrow(() -> defaultAccountService.get());
 
         assertNotNull(account);
         assertEquals(savedBuff.getId(), account.getId());
         assertNotNull(account.getUsername());
         assertNotNull(account.getEmail());
-    }
-    @Test @Order(5)
-    @Transactional
-    public void should_fail__get_saved_by_id__illegal_arguments() {
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.get(-1L));
     }
 
 
@@ -92,10 +100,8 @@ public class AccountServiceIntegrationTest {
 
     @Test @Order(8)
     public void should_ok__delete_saved() {
-        assertDoesNotThrow(() -> defaultAccountService.delete(savedBuff.getId()));
-    }
-    @Test @Order(9)
-    public void should_fail__delete_unreal__illegal_arguments() {
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.delete(-1L));
+        assertDoesNotThrow(() -> defaultAccountService.delete());
+
+        assertThrows(UsernameNotFoundException.class, () -> defaultAccountService.get());
     }
 }
