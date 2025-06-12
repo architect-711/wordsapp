@@ -1,7 +1,7 @@
 {
   "yaakVersion": "2025.4.0",
   "yaakSchema": 4,
-  "timestamp": "2025-06-11T11:30:26.382430136",
+  "timestamp": "2025-06-12T13:10:11.358180988",
   "resources": {
     "workspaces": [
       {
@@ -112,9 +112,37 @@
     "httpRequests": [
       {
         "model": "http_request",
+        "id": "rq_ZsYrqzRYJK",
+        "createdAt": "2025-06-12T10:53:40.978716214",
+        "updatedAt": "2025-06-12T13:09:44.558823119",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_pQuyavhL6F",
+        "authentication": {},
+        "authenticationType": null,
+        "body": {
+          "text": "{\n  \"username\": \"dmitrii\",\n  \"password\": \"111\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "erEn9xjC3R"
+          }
+        ],
+        "method": "POST",
+        "name": "login64",
+        "sortPriority": -0.0001,
+        "url": "${[ url ]}/${[ account ]}/login64",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
         "id": "rq_PriuxDU6Hr",
         "createdAt": "2025-06-11T11:27:11.834704899",
-        "updatedAt": "2025-06-11T11:27:40.596256036",
+        "updatedAt": "2025-06-11T21:05:06.156446730",
         "workspaceId": "wk_TbHMSNWFxH",
         "folderId": "fl_pUduBBLGdw",
         "authentication": {},
@@ -122,33 +150,47 @@
         "body": {},
         "bodyType": null,
         "description": "",
-        "headers": [],
+        "headers": [
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "PpFE7GIyIc"
+          }
+        ],
         "method": "GET",
         "name": "get all",
         "sortPriority": -0.00030000000000000003,
         "url": "${[ url ]}/${[ languages ]}",
-        "urlParameters": []
+        "urlParameters": [
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "Q7vFceJ9FT"
+          }
+        ]
       },
       {
         "model": "http_request",
         "id": "rq_bbF4rd6FeN",
         "createdAt": "2025-06-11T11:20:57.194385726",
-        "updatedAt": "2025-06-11T11:24:23.317590807",
+        "updatedAt": "2025-06-12T13:09:51.512724938",
         "workspaceId": "wk_TbHMSNWFxH",
         "folderId": "fl_pQuyavhL6F",
         "authentication": {},
         "authenticationType": null,
         "body": {
-          "text": "{\n  \"username\": \"volodimir228\",\n  \"email\": \"volodya@mail.edu\",\n  \"password\": \"12345\"\n}"
+          "text": "{\n  \"username\": \"dmitrii\",\n  \"email\": \"dmitrii@gmail.com\",\n  \"password\": \"111\"\n}"
         },
         "bodyType": "application/json",
         "description": "",
         "headers": [
           {
             "enabled": true,
-            "name": "Content-Type",
-            "value": "application/json",
-            "id": "UM0AZ4YcvI"
+            "name": "",
+            "value": "",
+            "id": "PGx9udDwrW"
           }
         ],
         "method": "POST",
@@ -161,11 +203,11 @@
         "model": "http_request",
         "id": "rq_Vx5Q3sqDFW",
         "createdAt": "2025-06-11T11:20:51.664578790",
-        "updatedAt": "2025-06-11T11:26:58.634141350",
+        "updatedAt": "2025-06-12T13:09:48.746603803",
         "workspaceId": "wk_TbHMSNWFxH",
         "folderId": "fl_pQuyavhL6F",
         "authentication": {},
-        "authenticationType": null,
+        "authenticationType": "basic",
         "body": {
           "text": "{\n  \"id\": 28,\n  \"username\": \"new_email@gmail.ru\",\n  \"email\": \"malolyk@gogamagoga.asdf\"\n}"
         },
@@ -174,9 +216,9 @@
         "headers": [
           {
             "enabled": true,
-            "name": "Content-Type",
-            "value": "application/json",
-            "id": "IzNHxG9uF4"
+            "name": "",
+            "value": "",
+            "id": "mxCVbjV4tr"
           }
         ],
         "method": "PUT",
@@ -189,38 +231,45 @@
         "model": "http_request",
         "id": "rq_BuG4oZpE5P",
         "createdAt": "2025-06-11T11:20:40.564835696",
-        "updatedAt": "2025-06-11T11:25:05.455409313",
+        "updatedAt": "2025-06-12T13:07:36.404419179",
         "workspaceId": "wk_TbHMSNWFxH",
         "folderId": "fl_pQuyavhL6F",
         "authentication": {},
-        "authenticationType": null,
+        "authenticationType": "basic",
         "body": {},
         "bodyType": null,
         "description": "",
         "headers": [],
         "method": "DELETE",
-        "name": "delete by id",
+        "name": "delete",
         "sortPriority": -0.0001,
-        "url": "${[ url ]}/${[ account ]}/56",
+        "url": "${[ url ]}/${[ account ]}",
         "urlParameters": []
       },
       {
         "model": "http_request",
         "id": "rq_Ggsiz3Ldwq",
         "createdAt": "2025-06-11T11:19:55.755253802",
-        "updatedAt": "2025-06-11T11:24:47.236083091",
+        "updatedAt": "2025-06-12T13:08:18.464327828",
         "workspaceId": "wk_TbHMSNWFxH",
         "folderId": "fl_pQuyavhL6F",
         "authentication": {},
-        "authenticationType": null,
+        "authenticationType": "basic",
         "body": {},
         "bodyType": null,
         "description": "",
-        "headers": [],
+        "headers": [
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "yF7cushXMH"
+          }
+        ],
         "method": "GET",
-        "name": "get by id",
+        "name": "get",
         "sortPriority": 0.0,
-        "url": "${[ url ]}/${[ account ]}/56",
+        "url": "${[ url ]}/${[ account ]}",
         "urlParameters": []
       }
     ],
