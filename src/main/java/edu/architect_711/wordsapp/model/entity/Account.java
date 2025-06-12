@@ -29,4 +29,9 @@ public class Account {
         this.password = password;
         this.username = username;
     }
+
+    @Override
+    public String toString() {
+        return "Account [id=" + id + ", username=" + username + ", password=" + password + ", email=" + email + "]";
+    }
 }
