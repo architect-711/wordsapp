@@ -4,6 +4,7 @@ import edu.architect_711.wordsapp.model.dto.AccountDto;
 import edu.architect_711.wordsapp.model.dto.LoginRequest;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
 import edu.architect_711.wordsapp.service.account.AccountService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,11 +19,13 @@ public class AccountController {
         return accountService.get();
     }
 
+    @SecurityRequirements
     @PostMapping("/login64")
     public String login64(@RequestBody LoginRequest loginRequest) {
         return accountService.login64(loginRequest);
     }
 
+    @SecurityRequirements
     @PostMapping
     public AccountDto save(@RequestBody SaveAccountDto accountDto) {
         return accountService.save(accountDto);

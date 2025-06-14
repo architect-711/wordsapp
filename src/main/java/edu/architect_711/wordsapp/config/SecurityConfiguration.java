@@ -20,7 +20,12 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/languages/**").permitAll()
+                        .requestMatchers(
+                                "/api/languages/**",
+                                "/swagger-ui/**",
+                                "/api-docs.yaml",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/accounts").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/accounts/login64").permitAll()
                         .anyRequest().authenticated())
