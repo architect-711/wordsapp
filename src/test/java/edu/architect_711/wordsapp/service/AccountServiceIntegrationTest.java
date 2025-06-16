@@ -3,8 +3,10 @@ package edu.architect_711.wordsapp.service;
 import edu.architect_711.wordsapp.model.dto.AccountDetails;
 import edu.architect_711.wordsapp.model.dto.AccountDto;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
+import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import edu.architect_711.wordsapp.service.account.DefaultAccountService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.*;
@@ -13,11 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toEntity;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -30,22 +32,24 @@ public class AccountServiceIntegrationTest {
     private AccountRepository accountRepository;
 
     public final SaveAccountDto UNEXISTING_ACCOUNT = new SaveAccountDto("test_" +LocalDateTime.now(), "1234", LocalDateTime.now() + "_name@domain.tld");
+    private AccountDto savedBuff;
 
-    @BeforeAll
-    public void setup() {
-        var accountDetails = new AccountDetails(UNEXISTING_ACCOUNT.getUsername(), UNEXISTING_ACCOUNT.getPassword(), List.of());
-        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(accountDetails, UNEXISTING_ACCOUNT.getPassword(), List.of());
+    private void authenticate(Account account) {
+        var accountDetails = new AccountDetails(account);
+
+        // Note, that it works only when calling the service, because it doesn't care about unencrypted password
+        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(accountDetails, accountDetails.getPassword(), List.of()); 
 
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
     }
-
-    private AccountDto savedBuff;
 
     @Test
     @Order(1)
     public void should_ok__save_new() {
         savedBuff = assertDoesNotThrow(() -> defaultAccountService.save(UNEXISTING_ACCOUNT));
         assertDoesNotThrow(() -> accountRepository.getReferenceById(savedBuff.getId()));
+
+        authenticate(toEntity(savedBuff, UNEXISTING_ACCOUNT.getPassword()));
     }
     @Test
     @Order(2)
@@ -102,6 +106,6 @@ public class AccountServiceIntegrationTest {
     public void should_ok__delete_saved() {
         assertDoesNotThrow(() -> defaultAccountService.delete());
 
-        assertThrows(UsernameNotFoundException.class, () -> defaultAccountService.get());
+        assertThrows(EntityNotFoundException.class, () -> defaultAccountService.get());
     }
 }
