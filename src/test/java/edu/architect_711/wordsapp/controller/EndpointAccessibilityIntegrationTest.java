@@ -26,8 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
-public class AccountControllerAccessibilityIntegrationTest {
-    private static final Logger log = LoggerFactory.getLogger(AccountControllerAccessibilityIntegrationTest.class);
+public class EndpointAccessibilityIntegrationTest {
+    private static final Logger log = LoggerFactory.getLogger(EndpointAccessibilityIntegrationTest.class);
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,6 +49,9 @@ public class AccountControllerAccessibilityIntegrationTest {
         putEntrypoint(GET, "/api/accounts", true);
         putEntrypoint(PUT, "/api/accounts", true);
         putEntrypoint(DELETE, "/api/accounts", true);
+
+        putEntrypoint(GET, "/api/groups", true);
+        putEntrypoint(POST, "/api/groups", true);
     }
 
     @Test
