@@ -6,7 +6,6 @@ import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import edu.architect_711.wordsapp.service.account.DefaultAccountService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.*;
@@ -106,6 +105,6 @@ public class AccountServiceIntegrationTest {
     public void should_ok__delete_saved() {
         assertDoesNotThrow(() -> defaultAccountService.delete());
 
-        assertThrows(EntityNotFoundException.class, () -> defaultAccountService.get());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }
