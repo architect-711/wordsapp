@@ -13,13 +13,13 @@ import java.util.List;
 @AllArgsConstructor @NoArgsConstructor
 @Data
 public class AccountDetails implements UserDetails {
-    private Long id;
+    private Account account;
     private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
     public AccountDetails(Account account) {
-        this.id = account.getId();
+        this.account = account;
         this.username = account.getUsername();
         this.password = account.getPassword();
         this.authorities = List.of();
