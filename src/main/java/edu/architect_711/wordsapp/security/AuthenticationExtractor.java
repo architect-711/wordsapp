@@ -1,11 +1,11 @@
 package edu.architect_711.wordsapp.security;
 
+import edu.architect_711.wordsapp.model.dto.AccountDetails;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,12 +19,12 @@ public class AuthenticationExtractor {
      * @throws EntityNotFoundException if the account wasn't found
      */
     public Account extract() {
-        UserDetails principal = getUserDetailsFromAuthContext();
+        AccountDetails principal = getUserDetailsFromAuthContext();
 
-        return accountRepository.safeFindByUsername(principal.getUsername());
+        return accountRepository.safeFindById(principal.getId());
     }
 
-    public UserDetails getUserDetailsFromAuthContext() {
-        return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public AccountDetails getUserDetailsFromAuthContext() {
+        return (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
