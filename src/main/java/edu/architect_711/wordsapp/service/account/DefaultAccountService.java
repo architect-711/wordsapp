@@ -5,10 +5,10 @@ import edu.architect_711.wordsapp.model.dto.LoginRequest;
 import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.repository.AccountRepository;
-import edu.architect_711.wordsapp.security.AuthenticationExtractor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -17,13 +17,13 @@ import java.util.Base64;
 
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toEntity;
+import static edu.architect_711.wordsapp.security.AuthenticationExtractor.getAccount;
 
 @Service @RequiredArgsConstructor
 @Validated
 public class DefaultAccountService implements AccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationExtractor authenticationExtractor;
 
     @Override
     public AccountDto save(@Valid SaveAccountDto accountDto) { // TODO mb return base64 token?
@@ -48,17 +48,18 @@ public class DefaultAccountService implements AccountService {
 
     @Override
     public AccountDto get() {
-        return toDto(authenticationExtractor.extract());
+        return toDto(getAccount());
     }
 
     @Override
     public void delete() {
-        accountRepository.deleteById(authenticationExtractor.extract().getId());
+        accountRepository.deleteById(getAccount().getId());
+        SecurityContextHolder.clearContext();
     }
 
     @Override
     public AccountDto update(@Valid AccountDto accountDto) {
-        Account account = authenticationExtractor.extract();
+        Account account = getAccount();
 
         account.setEmail(accountDto.getEmail());
         account.setUsername(accountDto.getUsername());
