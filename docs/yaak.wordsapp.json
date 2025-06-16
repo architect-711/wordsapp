@@ -1,7 +1,7 @@
 {
   "yaakVersion": "2025.4.0",
   "yaakSchema": 4,
-  "timestamp": "2025-06-12T13:10:11.358180988",
+  "timestamp": "2025-06-16T21:16:28.846713188",
   "resources": {
     "workspaces": [
       {
@@ -26,7 +26,7 @@
         "id": "ev_8Q4z2LFeYZ",
         "workspaceId": "wk_TbHMSNWFxH",
         "createdAt": "2025-06-11T11:21:16.793294660",
-        "updatedAt": "2025-06-11T11:22:02.763286369",
+        "updatedAt": "2025-06-16T21:06:44.553305003",
         "name": "wordsapp env",
         "public": false,
         "base": false,
@@ -48,6 +48,12 @@
             "name": "languages",
             "value": "languages",
             "id": "METdWd92wG"
+          },
+          {
+            "enabled": true,
+            "name": "groups",
+            "value": "groups",
+            "id": "7YThwhSywY"
           }
         ],
         "color": null
@@ -66,6 +72,20 @@
       }
     ],
     "folders": [
+      {
+        "model": "folder",
+        "id": "fl_c8BWsgk8Fu",
+        "createdAt": "2025-06-16T21:05:06.670858121",
+        "updatedAt": "2025-06-16T21:05:06.670858682",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_7vyAihnHiN",
+        "authentication": {},
+        "authenticationType": null,
+        "description": "",
+        "headers": [],
+        "name": "groups",
+        "sortPriority": -1750108000000.0
+      },
       {
         "model": "folder",
         "id": "fl_pUduBBLGdw",
@@ -112,9 +132,129 @@
     "httpRequests": [
       {
         "model": "http_request",
+        "id": "rq_ZR2QV2Hstk",
+        "createdAt": "2025-06-16T21:13:35.511745421",
+        "updatedAt": "2025-06-16T21:15:40.172861964",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_c8BWsgk8Fu",
+        "authentication": {},
+        "authenticationType": "basic",
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "I5ydQCEKqm"
+          }
+        ],
+        "method": "DELETE",
+        "name": "delete",
+        "sortPriority": -0.0002,
+        "url": "${[ url ]}/${[ groups ]}/159",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_4Bq4RVhUeF",
+        "createdAt": "2025-06-16T21:12:19.397606278",
+        "updatedAt": "2025-06-16T21:15:31.874690537",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_c8BWsgk8Fu",
+        "authentication": {},
+        "authenticationType": "basic",
+        "body": {
+          "text": "{\n  \"id\": 159,\n  \"title\": \"the new title\",\n  \"description\": \"la descr\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "FXsxevgcWg"
+          },
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "6q2r8Acdh4"
+          }
+        ],
+        "method": "PUT",
+        "name": "update",
+        "sortPriority": -0.0002,
+        "url": "${[ url ]}/${[ groups ]}",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_o5pCEiNKb3",
+        "createdAt": "2025-06-16T21:10:44.162320436",
+        "updatedAt": "2025-06-16T21:15:24.632947948",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_c8BWsgk8Fu",
+        "authentication": {},
+        "authenticationType": "basic",
+        "body": {
+          "text": "{\n  \"title\": \"just for fun\",\n  \"description\": \"also for fund\"\n}"
+        },
+        "bodyType": "application/json",
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "sRhpu5wUGz"
+          },
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "5jMziVVU0m"
+          }
+        ],
+        "method": "POST",
+        "name": "save",
+        "sortPriority": -0.0002,
+        "url": "${[ url ]}/${[ groups ]}",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
+        "id": "rq_LM9TKjzWJ6",
+        "createdAt": "2025-06-16T21:05:10.801348611",
+        "updatedAt": "2025-06-16T21:15:47.572516356",
+        "workspaceId": "wk_TbHMSNWFxH",
+        "folderId": "fl_c8BWsgk8Fu",
+        "authentication": {},
+        "authenticationType": "basic",
+        "body": {},
+        "bodyType": null,
+        "description": "",
+        "headers": [
+          {
+            "enabled": true,
+            "name": "",
+            "value": "",
+            "id": "wfURGQFDr3"
+          }
+        ],
+        "method": "GET",
+        "name": "get all",
+        "sortPriority": -0.0001,
+        "url": "${[ url ]}/${[ groups ]}",
+        "urlParameters": []
+      },
+      {
+        "model": "http_request",
         "id": "rq_ZsYrqzRYJK",
         "createdAt": "2025-06-12T10:53:40.978716214",
-        "updatedAt": "2025-06-12T13:09:44.558823119",
+        "updatedAt": "2025-06-16T21:09:20.669692640",
         "workspaceId": "wk_TbHMSNWFxH",
         "folderId": "fl_pQuyavhL6F",
         "authentication": {},
@@ -127,9 +267,15 @@
         "headers": [
           {
             "enabled": true,
+            "name": "Content-Type",
+            "value": "application/json",
+            "id": "DrKI2hUqEj"
+          },
+          {
+            "enabled": true,
             "name": "",
             "value": "",
-            "id": "erEn9xjC3R"
+            "id": "awHT0i9T9B"
           }
         ],
         "method": "POST",
