@@ -5,15 +5,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-
-@Entity @Table(name = "account_group")
-@AllArgsConstructor @NoArgsConstructor @Getter @Setter
+@Entity
+@Table(name = "account_group")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Group {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, name = "title")
@@ -27,12 +31,11 @@ public class Group {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private Account account;
 
-    public Group(String title, LocalDateTime created, String description, Account account) {
+    public Group(String title, String description, Account account) {
         this.title = title;
-        this.created = created;
         this.description = description;
         this.account = account;
     }
