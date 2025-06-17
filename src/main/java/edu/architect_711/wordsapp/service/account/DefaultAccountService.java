@@ -1,8 +1,8 @@
 package edu.architect_711.wordsapp.service.account;
 
-import edu.architect_711.wordsapp.model.dto.AccountDto;
-import edu.architect_711.wordsapp.model.dto.LoginRequest;
-import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
+import edu.architect_711.wordsapp.model.dto.account.AccountDto;
+import edu.architect_711.wordsapp.model.dto.account.AccountLoginRequest;
+import edu.architect_711.wordsapp.model.dto.account.SaveAccountDto;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import jakarta.validation.Valid;
@@ -13,13 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Base64;
-
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toEntity;
-import static edu.architect_711.wordsapp.security.AuthenticationExtractor.getAccount;
+import static edu.architect_711.wordsapp.security.AuthenticatedUserExtractor.getAccount;
+import static edu.architect_711.wordsapp.service.Base64Generator.generate;
 
-@Service @RequiredArgsConstructor
+@Service
+@RequiredArgsConstructor
 @Validated
 public class DefaultAccountService implements AccountService {
     private final AccountRepository accountRepository;
@@ -34,16 +34,13 @@ public class DefaultAccountService implements AccountService {
     }
 
     @Override
-    public String login64(LoginRequest loginRequest) {
-        Account account = accountRepository.safeFindByUsername(loginRequest.getUsername());
+    public String login64(AccountLoginRequest accountLoginRequest) {
+        Account account = accountRepository.safeFindByUsername(accountLoginRequest.getUsername());
 
-        if (!passwordEncoder.matches(loginRequest.getPassword(), account.getPassword())) {
+        if (!passwordEncoder.matches(accountLoginRequest.getPassword(), account.getPassword()))
             throw new BadCredentialsException("Wrong password");
-        }
 
-        String credentials = account.getUsername() + ":" + loginRequest.getPassword();
-
-        return Base64.getEncoder().encodeToString(credentials.getBytes());
+        return generate(account.getUsername(), account.getPassword());
     }
 
     @Override
