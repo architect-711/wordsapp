@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.model.dto;
+package edu.architect_711.wordsapp.model.dto.account;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
+public class AccountLoginRequest {
     @NotBlank
     private String username;
     @NotBlank

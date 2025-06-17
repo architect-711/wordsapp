@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.model.dto;
+package edu.architect_711.wordsapp.model.dto.account;
 
 import edu.architect_711.wordsapp.model.entity.Account;
 import lombok.AllArgsConstructor;
@@ -10,16 +10,26 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@AllArgsConstructor @NoArgsConstructor
+/**
+ * This object <b>MUST</b> be placed in the {@link org.springframework.security.core.Authentication} object
+ * as the principal, because it saves from the extra SQL-request to the database, for example to get the
+ * authenticated user id.
+ * <p>
+ * This is very helpful. You don't need to search for the authenticated user entity in the database,
+ * because it's already in the Authentication, since a user went through the {@link org.springframework.security.web.SecurityFilterChain}
+ * and loaded from the database by the {@link edu.architect_711.wordsapp.service.account.AccountDetailsService}
+ */
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class AccountDetails implements UserDetails {
-    private Long id;
+    private Account account;
     private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
 
     public AccountDetails(Account account) {
-        this.id = account.getId();
+        this.account = account;
         this.username = account.getUsername();
         this.password = account.getPassword();
         this.authorities = List.of();

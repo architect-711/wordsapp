@@ -1,6 +1,6 @@
 package edu.architect_711.wordsapp.service.account;
 
-import edu.architect_711.wordsapp.model.dto.AccountDetails;
+import edu.architect_711.wordsapp.model.dto.account.AccountDetails;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;

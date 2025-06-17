@@ -19,7 +19,9 @@ public class ExceptionController {
         ), HttpStatus.BAD_REQUEST);
     }
 
-    @Data @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ErrorResponse {
         private String message;
         private String localizedMessage;

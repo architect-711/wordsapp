@@ -6,17 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Table(name = "language")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Entity
+@Table(name = "language")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Language {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
     private String title;
-
-    public Language(String title) {
-        this.title = title;
-    }
 }

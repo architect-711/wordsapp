@@ -1,31 +1,28 @@
 package edu.architect_711.wordsapp.service.account;
 
-import edu.architect_711.wordsapp.model.dto.AccountDto;
-import edu.architect_711.wordsapp.model.dto.LoginRequest;
-import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
+import edu.architect_711.wordsapp.model.dto.account.AccountDto;
+import edu.architect_711.wordsapp.model.dto.account.AccountLoginRequest;
+import edu.architect_711.wordsapp.model.dto.account.SaveAccountDto;
 import jakarta.validation.Valid;
 
 public interface AccountService {
     /**
-     * Get account, this is the private endpoint, so
-     * developer must retrieve info from the {@link org.springframework.security.core.Authentication}
+     * Get account
      * @return found account
      * @throws jakarta.persistence.EntityNotFoundException if not found
      */
     AccountDto get();
 
     /**
-     * Authenticate a user by generating base64 token
-     * @param loginRequest credentials
+     * Login user and generate a base64 token in return for user to allow
+     * to be authenticated
+     * @param accountLoginRequest credentials
      * @return base64 token
      */
-    String login64(@Valid LoginRequest loginRequest);
+    String login64(@Valid AccountLoginRequest accountLoginRequest);
 
     /**
-     * Delete account, this is the private endpoint, so
-     * developer must retrieve info from the {@link org.springframework.security.core.Authentication}
-     * @param id account id to be deleted
-     * @throws IllegalArgumentException if given id is null
+     * Delete account and clears the {@link org.springframework.security.core.context.SecurityContextHolder}
      */
     void delete();
 

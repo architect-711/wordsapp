@@ -1,6 +1,6 @@
 package edu.architect_711.wordsapp.service.language;
 
-import edu.architect_711.wordsapp.model.dto.LanguageDto;
+import edu.architect_711.wordsapp.model.dto.language.LanguageDto;
 
 import java.util.List;
 
