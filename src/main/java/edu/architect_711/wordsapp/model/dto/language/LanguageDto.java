@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.model.dto;
+package edu.architect_711.wordsapp.model.dto.language;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

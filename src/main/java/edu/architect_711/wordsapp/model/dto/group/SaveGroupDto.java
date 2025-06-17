@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.model.dto;
+package edu.architect_711.wordsapp.model.dto.group;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
