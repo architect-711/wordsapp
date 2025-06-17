@@ -1,23 +1,27 @@
 package edu.architect_711.wordsapp.service;
 
-import edu.architect_711.wordsapp.model.dto.AccountDetails;
-import edu.architect_711.wordsapp.model.dto.AccountDto;
-import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
-import edu.architect_711.wordsapp.model.entity.Account;
+import edu.architect_711.wordsapp.model.dto.account.AccountDto;
+import edu.architect_711.wordsapp.model.dto.account.SaveAccountDto;
+import edu.architect_711.wordsapp.model.dto.group.GroupDto;
+import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
+import edu.architect_711.wordsapp.model.entity.Group;
 import edu.architect_711.wordsapp.repository.AccountRepository;
+import edu.architect_711.wordsapp.repository.GroupRepository;
 import edu.architect_711.wordsapp.service.account.DefaultAccountService;
+import edu.architect_711.wordsapp.service.group.GroupService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import static edu.architect_711.wordsapp.Authenticator.authenticate;
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toEntity;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,17 +34,17 @@ public class AccountServiceIntegrationTest {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private GroupRepository groupRepository;
+    @Autowired
+    private GroupService groupService;
+
     public final SaveAccountDto UNEXISTING_ACCOUNT = new SaveAccountDto("test_" +LocalDateTime.now(), "1234", LocalDateTime.now() + "_name@domain.tld");
-    private AccountDto savedBuff;
-
-    private void authenticate(Account account) {
-        var accountDetails = new AccountDetails(account);
-
-        // Note, that it works only when calling the service, because it doesn't care about unencrypted password
-        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(accountDetails, accountDetails.getPassword(), List.of()); 
-
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-    }
+    /**
+     * <b>NOTE!</b> Keep in mind always that this var MUST never be reassigned or cleared!!
+     * It represents saved account.
+     */
+    private AccountDto savedBuff = null;
 
     @Test
     @Order(1)
@@ -49,6 +53,7 @@ public class AccountServiceIntegrationTest {
         assertDoesNotThrow(() -> accountRepository.getReferenceById(savedBuff.getId()));
 
         authenticate(toEntity(savedBuff, UNEXISTING_ACCOUNT.getPassword()));
+        assertNotNull(SecurityContextHolder.getContext());
     }
     @Test
     @Order(2)
@@ -80,7 +85,7 @@ public class AccountServiceIntegrationTest {
     @Test @Order(6)
     @Transactional
     public void should_ok__update_saved() {
-        AccountDto newOne = new AccountDto(savedBuff.getId(), "new_username", "new_email");
+        AccountDto newOne = new AccountDto(savedBuff.getId(), "new_username_" + LocalDateTime.now(), "new_email");
 
         AccountDto accountDto = assertDoesNotThrow(() -> defaultAccountService.update(newOne));
 
@@ -103,8 +108,32 @@ public class AccountServiceIntegrationTest {
 
     @Test @Order(8)
     public void should_ok__delete_saved() {
+        List<GroupDto> groupDtos = save_test_groups();
+
+        groupDtos.forEach(g ->
+                assertDoesNotThrow(() -> {
+                            Group group = groupRepository.safeFindById(g.getId());
+
+                            assertEquals(group.getAccount().getId(), savedBuff.getId());
+                        }
+                )
+        );
+
         assertDoesNotThrow(() -> defaultAccountService.delete());
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
+
+        List<Group> all = groupRepository.findAll(savedBuff.getId());
+
+        assertTrue(all.isEmpty());
+    }
+
+    private List<GroupDto> save_test_groups() {
+        final byte LIMIT = 5;
+        var saved = new ArrayList<GroupDto>(LIMIT);
+        for (byte i = 0; i < LIMIT; i++)
+            saved.add(groupService.save(new SaveGroupDto("test_" + LocalDateTime.now(), "desc")));
+
+        return saved;
     }
 }
