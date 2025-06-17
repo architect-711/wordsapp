@@ -19,8 +19,4 @@ public class Language {
 
     @Column(nullable = false, unique = true)
     private String title;
-
-    public Language(String title) {
-        this.title = title;
-    }
 }
