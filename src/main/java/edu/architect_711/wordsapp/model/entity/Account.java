@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "account")
 @AllArgsConstructor
@@ -23,6 +25,9 @@ public class Account {
 
     @Column(nullable = false, unique = true, name = "email")
     private String email;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private Set<Group> groups;
 
     public Account(String email, String password, String username) {
         this.email = email;
