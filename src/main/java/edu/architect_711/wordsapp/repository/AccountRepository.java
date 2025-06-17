@@ -15,6 +15,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByUsername(String username);
 
 
+
+    // "safe" methods
     default Account safeFindByUsername(String username) throws UsernameNotFoundException {
         return this.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }

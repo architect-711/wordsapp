@@ -21,6 +21,9 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
     )
     List<Group> findAll(@Param("userId") Long userId);
 
+
+
+    // "safe" methods
     default Group safeFindById(Long id) throws EntityNotFoundException {
         return findById(id).orElseThrow(() -> new EntityNotFoundException("Group with such id not found: " + id));
     }
