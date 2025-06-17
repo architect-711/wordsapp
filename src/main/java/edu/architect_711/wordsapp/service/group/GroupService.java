@@ -1,8 +1,8 @@
 package edu.architect_711.wordsapp.service.group;
 
-import edu.architect_711.wordsapp.model.dto.GroupDto;
-import edu.architect_711.wordsapp.model.dto.SaveGroupDto;
-import edu.architect_711.wordsapp.model.dto.UpdateGroupDto;
+import edu.architect_711.wordsapp.model.dto.group.GroupDto;
+import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
+import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
@@ -32,7 +32,6 @@ public interface GroupService {
     GroupDto update(@Valid UpdateGroupDto updateGroupDto) throws EntityNotFoundException;
 
 
-    // TODO: after the word has been added implement the mechanism of their deletion when the group gets deleted
     /**
      * Delete group by its id. Ignores a group absence
      * @param id group id
