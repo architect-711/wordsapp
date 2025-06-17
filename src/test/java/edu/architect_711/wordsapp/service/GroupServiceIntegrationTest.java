@@ -1,10 +1,8 @@
 package edu.architect_711.wordsapp.service;
 
-import edu.architect_711.wordsapp.model.dto.AccountDetails;
-import edu.architect_711.wordsapp.model.dto.GroupDto;
-import edu.architect_711.wordsapp.model.dto.SaveGroupDto;
-import edu.architect_711.wordsapp.model.dto.UpdateGroupDto;
-import edu.architect_711.wordsapp.model.entity.Account;
+import edu.architect_711.wordsapp.model.dto.group.GroupDto;
+import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
+import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import edu.architect_711.wordsapp.repository.GroupRepository;
 import edu.architect_711.wordsapp.service.group.GroupService;
@@ -15,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.ArrayList;
 
+import static edu.architect_711.wordsapp.Authenticator.authenticate;
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toUpdateDto;
-import static edu.architect_711.wordsapp.security.AuthenticationExtractor.getAccount;
+import static edu.architect_711.wordsapp.security.AuthenticatedUserExtractor.getAccount;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -38,23 +36,14 @@ public class GroupServiceIntegrationTest {
     private AccountRepository accountRepository;
 
     private final SaveGroupDto UNEXISTING_GROUP_DTO = genSaveDto();
+    /**
+     * <b>NOTE!!!</b> This var MUST never be cleared or reassigned. Treat it as FINAL.
+     * It represents saved by the {@link GroupServiceIntegrationTest#should_ok__save()} method value
+     */
     private GroupDto savedBuff = null;
 
     public SaveGroupDto genSaveDto() {
         return new SaveGroupDto("test_" + LocalDateTime.now(), "some description");
-    }
-
-    private void authenticate(Account account) {
-        assertNotNull(account);
-
-        var accountDetails = new AccountDetails(account);
-
-        // Note, that it works only when calling the service, because it doesn't care
-        // about unencrypted password
-        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(accountDetails,
-                accountDetails.getPassword(), List.of());
-
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
     }
 
     @BeforeAll
@@ -89,10 +78,12 @@ public class GroupServiceIntegrationTest {
     @Order(3)
     @Test
     public void should_ok__get_all() {
+        var saved = new ArrayList<GroupDto>();
+
         final int LIMIT = 10;
         if (groupRepository.count() < 10) {
             for (byte i = 0; i < LIMIT; i++)
-                groupService.save(genSaveDto());
+                saved.add(groupService.save(genSaveDto()));
         }
 
         var found = assertDoesNotThrow(() -> groupService.get());
@@ -100,11 +91,12 @@ public class GroupServiceIntegrationTest {
         assertTrue(found.size() >= LIMIT);
 
         found.forEach(f -> assertEquals(f.getOwnerId(), getAccount().getId()));
+
+        saved.forEach(s -> groupRepository.deleteById(s.getId()));
     }
 
 
 
-    // TODO fix update method in the account tests and service
     @Order(4)
     @Test
     public void should_ok__update() {
@@ -116,7 +108,6 @@ public class GroupServiceIntegrationTest {
         assertEquals(updated.getTitle(), update.getTitle());
         assertEquals(updated.getDescription(), update.getDescription());
     }
-
     @Order(5)
     @Test
     public void should_fail__update__fabulous_id() {
@@ -136,9 +127,8 @@ public class GroupServiceIntegrationTest {
     @Order(7)
     @Test
     public void should_fail__update__third_party_access() {
-        // TODO update another user group
         var account = accountRepository.findAll(PageRequest.of(1, 1)).getContent().getFirst(); // find second user
-        var backupAuth = SecurityContextHolder.getContext().getAuthentication(); // i hope that will not be changed
+        var backupAuth = SecurityContextHolder.getContext().getAuthentication(); // I hope that will not be changed
 
         authenticate(account); // login as another user
 
@@ -156,7 +146,7 @@ public class GroupServiceIntegrationTest {
     public void should_fail__delete__third_party_access() {
         var backupAuth = SecurityContextHolder.getContext().getAuthentication();
         var anotherUser = accountRepository.findAll(PageRequest.of(1, 1)).getContent().getFirst();
-        var group = groupRepository.safeFindById(savedBuff.getId()); // TODO: but why safe find first???
+        var group = groupRepository.safeFindById(savedBuff.getId());
 
         authenticate(anotherUser);
 
@@ -170,12 +160,5 @@ public class GroupServiceIntegrationTest {
         assertDoesNotThrow(() -> groupService.delete(savedBuff.getId()));
 
         assertTrue(groupRepository.findById(savedBuff.getId()).isEmpty());
-    }
-
-
-
-    @AfterAll
-    public void clean() { // TODO don't forget to remove
-        groupRepository.deleteAll();
     }
 }
