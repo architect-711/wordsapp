@@ -34,7 +34,7 @@ public class EndpointAccessibilityIntegrationTest {
 
     public record Entrypoint(HttpMethod httpMethod, String endpoint, boolean isSecure) {}
 
-    public List<Entrypoint> entrypoints = new ArrayList<>();
+    public final List<Entrypoint> entrypoints = new ArrayList<>();
 
     private void putEntrypoint(HttpMethod httpMethod, String endpoint, boolean isSecure) {
         entrypoints.add(new Entrypoint(httpMethod, endpoint, isSecure));
@@ -42,23 +42,22 @@ public class EndpointAccessibilityIntegrationTest {
 
     @BeforeAll
     public void setup() {
-        putEntrypoint(GET, "/api/languages", false);
+        putEntrypoint(GET,  "/api/languages", false);
 
         putEntrypoint(POST, "/api/login64", true);
         putEntrypoint(POST, "/api/accounts", false);
-        putEntrypoint(GET, "/api/accounts", true);
-        putEntrypoint(PUT, "/api/accounts", true);
-        putEntrypoint(DELETE, "/api/accounts", true);
+        putEntrypoint(GET,  "/api/accounts", true);
+        putEntrypoint(PUT,  "/api/accounts", true);
+        putEntrypoint(DELETE,   "/api/accounts", true);
 
-        putEntrypoint(GET, "/api/groups", true);
+        putEntrypoint(GET,  "/api/groups", true);
         putEntrypoint(POST, "/api/groups", true);
     }
 
     @Test
     public void accessibility_test() throws Exception {
-        for (Entrypoint entrypoint : entrypoints) {
+        for (Entrypoint entrypoint : entrypoints)
             makeRequest(entrypoint);
-        }
     }
 
     private void makeRequest(Entrypoint entrypoint) throws Exception {
@@ -89,12 +88,14 @@ public class EndpointAccessibilityIntegrationTest {
     }
 
     private MockHttpServletRequestBuilder determineMethod(Entrypoint entrypoint) {
-        if (entrypoint.httpMethod == GET) return get(entrypoint.endpoint);
-        else if (entrypoint.httpMethod == POST) return  post(entrypoint.endpoint);
-        else if (entrypoint.httpMethod == PUT) return put(entrypoint.endpoint);
-        else if (entrypoint.httpMethod == DELETE) return delete(entrypoint.endpoint);
+        var httpMethod = entrypoint.httpMethod;
 
-        else throw new IllegalArgumentException("Unsupported HTTP method: " + entrypoint.httpMethod);
+        if      (httpMethod == GET)     return get(entrypoint.endpoint);
+        else if (httpMethod == POST)    return post(entrypoint.endpoint);
+        else if (httpMethod == PUT)     return put(entrypoint.endpoint);
+        else if (httpMethod == DELETE)  return delete(entrypoint.endpoint);
+
+        else throw new IllegalArgumentException("Unsupported HTTP method: " + httpMethod);
     }
 
 }
