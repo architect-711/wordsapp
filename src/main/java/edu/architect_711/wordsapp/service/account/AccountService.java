@@ -9,7 +9,7 @@ public interface AccountService {
     /**
      * Get account
      * @return found account
-     * @throws jakarta.persistence.EntityNotFoundException if not found
+     * @throws jakarta.persistence.EntityNotFoundException if not found // TODO why? why not optional?
      */
     AccountDto get();
 
