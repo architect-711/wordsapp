@@ -13,10 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import static edu.architect_711.wordsapp.generator.Base64Generator.generate;
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toEntity;
-import static edu.architect_711.wordsapp.security.AuthenticatedUserExtractor.getAccount;
-import static edu.architect_711.wordsapp.service.Base64Generator.generate;
+import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
 
 @Service
 @RequiredArgsConstructor
