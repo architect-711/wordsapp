@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "account_group")
@@ -34,9 +35,18 @@ public class Group {
     @JoinColumn(name = "owner_id", nullable = false)
     private Account account;
 
-    public Group(String title, String description, Account account) {
+    @ManyToMany(fetch = FetchType.EAGER) // saves from "No session" exception
+    @JoinTable(
+        name = "node",
+        joinColumns = @JoinColumn(name = "group_id"),
+        inverseJoinColumns = @JoinColumn(name = "word_id")
+    )
+    private Set<Word> words;
+
+    public Group(String title, String description, Account account, Set<Word> words) {
         this.title = title;
         this.description = description;
         this.account = account;
+        this.words = words;
     }
 }
