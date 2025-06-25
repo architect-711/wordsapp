@@ -1,8 +1,12 @@
 package edu.architect_711.wordsapp.service.word;
 
+import edu.architect_711.wordsapp.exception.NodePointsToNothingException;
+import edu.architect_711.wordsapp.exception.WordNotFoundException;
 import edu.architect_711.wordsapp.model.dto.word.SaveWordRequest;
+import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
 import edu.architect_711.wordsapp.model.entity.Node;
+import edu.architect_711.wordsapp.model.entity.Word;
 import edu.architect_711.wordsapp.repository.GroupRepository;
 import edu.architect_711.wordsapp.repository.LanguageRepository;
 import edu.architect_711.wordsapp.repository.NodeRepository;
@@ -43,13 +47,18 @@ public class DefaultWordService implements WordService {
 
         var language = languageRepository.safeFindById(saveWordRequest.getLanguageId());
 
-        var model = toEntity(saveWordRequest, language);
-        var savedWord = wordRepository.save(model);
+        Optional<Word> found = wordRepository.findByTitle(saveWordRequest.getTitle());
+        Word word = found.isEmpty()
+                ? wordRepository.save(toEntity(saveWordRequest, language))
+                : found.get();
 
-        var nodeMap = new Node(group, savedWord);
-        nodeRepository.save(nodeMap);
+        if (!nodeRepository.existsByWordIdAndGroupId(word.getId(), groupId)) {
+            var nodeMap = new Node(group, word);
 
-        return toDto(savedWord);
+            nodeRepository.save(nodeMap);
+        }
+
+        return toDto(word);
     }
 
     @Override
@@ -62,28 +71,12 @@ public class DefaultWordService implements WordService {
 
             // This should never happen
             if (found.isEmpty())
-                handleAlarmWordGhostPointerState(node);
+                stateFail("This should never happen. For some reason the node's word_id points to the void.");
 
             res.add(toDto(found.get()));
         }
 
         return res;
-    }
-
-    private void handleAlarmWordGhostPointerState(Node node) {
-        log.error("This method should never occur to happen! It means, that the node refers to unexisting word");
-
-        nodeRepository.deleteById(node.getId());
-
-        log.error("For some reason the node's word id points to nothing! The node's been deleted.");
-
-        // if there is no any references to this word anymore
-        if (nodeRepository.findAllByWordId(node.getWord().getId()).isEmpty()) {
-            // then, no refers no word
-            wordRepository.deleteById(node.getWord().getId());
-
-            log.warn("Since there is no any points to the word anymore, then removing word...");
-        }
     }
 
     @Override
@@ -110,9 +103,57 @@ public class DefaultWordService implements WordService {
         return Optional.of(toDto(word.get()));
     }
 
-    private void stateFail(String message) {
+    @Transactional
+    @Override
+    public void delete(Long wordId, Long groupId) {
+        // findAll because for the case, when data was saved not properly
+        var nodes = nodeRepository.findAllByWordIdAndGroupId(wordId, groupId);
+
+        if (nodes.isEmpty())
+            return;
+
+        var group = groupRepository.findById(groupId).orElseGet(() -> null);
+
+        // should never happen
+        if (group == null) {
+            stateFail("This should never happen. The node points to the fabulous group!");
+            return;
+        }
+
+        checkGroupAccess(group.getAccount().getId());
+
+        nodeRepository.deleteAllById(nodes.stream().map(Node::getId).toList());
+
+        // if there's no any groups refering to this word, then delete it
+        if (!nodeRepository.existsByWordId(wordId)) {
+            delete(wordId);
+        }
+    }
+
+    @Override
+    public void delete(Long wordId) {
+        wordRepository.deleteById(wordId);
+    }
+
+    @Override
+    public WordDto update(@Valid UpdateWordRequest updateWord) {
+        var word = wordRepository.findById(updateWord.getId()).orElseThrow(() -> new WordNotFoundException("Word was not found with id: " + updateWord.getId()));
+        var lang = languageRepository.safeFindById(updateWord.getLanguageId());
+
+        word.setTitle(updateWord.getTitle());
+        word.setLanguage(lang);
+        word.setDefinition(updateWord.getDefinition());
+        word.setDescription(updateWord.getDescription());
+        word.setTranslations(updateWord.getTranslations().toArray(new String[0]));
+        word.setTranscriptions(updateWord.getTranscriptions().toArray(new String[0]));
+
+        return toDto(wordRepository.save(word));
+
+    }
+
+    private void stateFail(String message) throws NodePointsToNothingException {
         log.error(message);
-        throw new IllegalStateException(message);
+        throw new NodePointsToNothingException(message);
     }
 
 }
