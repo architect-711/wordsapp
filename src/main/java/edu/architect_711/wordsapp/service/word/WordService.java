@@ -1,6 +1,7 @@
 package edu.architect_711.wordsapp.service.word;
 
 import edu.architect_711.wordsapp.model.dto.word.SaveWordRequest;
+import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
 import jakarta.validation.Valid;
 
@@ -39,4 +40,30 @@ public interface WordService {
      */
     Optional<WordDto> get(Long wordId);
 
+    /**
+     * Delete a word from a group. It means to remove just a node.
+     * 
+     * @param wordId  word id to be removed
+     * @param groupId from group id
+     */
+    void delete(Long wordId, Long groupId);
+
+    /**
+     * Usually for internal purposes.
+     * <p>
+     * Delete permanetly a word from table. Make sure, that the node table
+     * hasn't got any references to the word you are trying to delete, otherwise
+     * you get the exception
+     * 
+     * @param wordId word id to be deleted forever
+     */
+    void delete(Long wordId);
+
+    /**
+     * Updates the word
+     * 
+     * @param updateWordRequest word to be updated
+     * @return updated word
+     */
+    WordDto update(@Valid UpdateWordRequest updateWordRequest);
 }
