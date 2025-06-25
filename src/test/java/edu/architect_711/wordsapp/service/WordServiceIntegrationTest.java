@@ -2,6 +2,7 @@ package edu.architect_711.wordsapp.service;
 
 import edu.architect_711.wordsapp.exception.UnauthorizedGroupModifyAttemptException;
 import edu.architect_711.wordsapp.model.dto.word.SaveWordRequest;
+import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
 import edu.architect_711.wordsapp.model.entity.Word;
 import edu.architect_711.wordsapp.repository.AccountRepository;
@@ -14,7 +15,6 @@ import edu.architect_711.wordsapp.service.group.GroupService;
 import edu.architect_711.wordsapp.service.word.DefaultWordService;
 import edu.architect_711.wordsapp.utils.Cleaner;
 import edu.architect_711.wordsapp.utils.Persister;
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
@@ -26,17 +26,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toEntity;
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toSaveRequest;
+import static edu.architect_711.wordsapp.model.mapper.WordMapper.toUpdateWordRequest;
 import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
 import static edu.architect_711.wordsapp.utils.TestEntityGenerator.word;
 import static edu.architect_711.wordsapp.utils.TestUtils.safeCleanAuth;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -289,4 +289,99 @@ public class WordServiceIntegrationTest {
 
         cleaner.clear(group.getId(), account.getId());
     }
+
+    /* --------------- DELETE --------------- */
+    @Test
+    @Transactional
+    public void should_ok__delete_from_group() {
+        // prepare
+        var account = persister.save_auth_get_account();
+        var group = persister.safe_persist_group(getAccount());
+        var lang = languageRepository.findN(0);
+        var word = persister.safe_persist_word(lang, group.getId());
+        var node = nodeRepository.findAllByWordIdAndGroupId(word.getId(), group.getId());
+
+        // check
+        assertEquals(1, node.size());
+        assertDoesNotThrow(() -> wordService.delete(word.getId(), group.getId()));
+
+        assertTrue(nodeRepository.findAllByWordIdAndGroupId(word.getId(), group.getId()).isEmpty());
+
+        boolean wordExists = wordRepository.existsById(word.getId());
+        if (wordRepository.count() == 1)
+            assertTrue(wordExists);
+        else
+            assertFalse(wordExists);
+
+        assertTrue(groupRepository.existsById(group.getId()));
+
+        // clean
+        cleaner.clear(node.getFirst().getId(), word.getId(), group.getId(), account.getId());
+    }
+
+    /* --------------- UPDATE --------------- */
+    @Test
+    public void should_ok__update() {
+        // prepare
+        var account = persister.save_auth_get_account();
+        var lang = languageRepository.findN(0);
+        var group = persister.safe_persist_group(getAccount());
+        var word = word(lang);
+
+        // persist
+        var saved = assertDoesNotThrow(() -> wordService.save(toSaveRequest(word), group.getId()));
+
+        assertNotNull(saved);
+
+        // check
+        var newOne = word(lang);
+        newOne.setId(saved.getId());
+
+        var updated = assertDoesNotThrow(() -> wordService.update(toUpdateWordRequest(newOne)));
+
+        compareWordsExact(newOne, updated);
+
+        // cleanup
+        cleaner.clear(group.getId(), account.getId());
+        wordRepository.deleteById(updated.getId());
+    }
+
+    private void compareWordsExact(Word a, WordDto b) {
+        assertNotNull(a);
+        assertNotNull(b);
+
+        assertEquals(a.getTitle(), b.getTitle());
+        assertEquals(a.getLanguage().getId(), b.getLanguageId());
+        assertEquals(a.getDefinition(), b.getDefinition());
+        assertEquals(a.getDescription(), b.getDescription());
+        assertEquals(a.getTranslations(), b.getTranslations());
+        assertEquals(a.getTranscriptions(), b.getTranscriptions());
+    }
+
+    @Test
+    public void should_fail__update__illegal_arguments() {
+        // prepare
+        var account = persister.save_auth_get_account();
+        var lang = languageRepository.findN(0);
+        var group = persister.safe_persist_group(getAccount());
+        var word = word(lang);
+
+        // persist
+        var saved = assertDoesNotThrow(() -> wordService.save(toSaveRequest(word), group.getId()));
+
+        // check
+        var invalid = new UpdateWordRequest(-1L, "    \n", null, null, "\0", null, null);
+
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<UpdateWordRequest>> validate = validator.validate(invalid);
+
+        assertEquals(3, validate.size());
+
+        assertThrows(ConstraintViolationException.class, () -> wordService.update(invalid));
+
+        // cleanup
+        cleaner.clear(group.getId(), account.getId());
+        wordRepository.deleteById(saved.getId());
+    }
+
 }
