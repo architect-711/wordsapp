@@ -1,6 +1,7 @@
 package edu.architect_711.wordsapp.model.mapper;
 
 import edu.architect_711.wordsapp.model.dto.word.SaveWordRequest;
+import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
 import edu.architect_711.wordsapp.model.entity.Language;
 import edu.architect_711.wordsapp.model.entity.Word;
@@ -56,6 +57,18 @@ public class WordMapper {
                 .description(word.getDescription())
                 .translations(word.getTranslations())
                 .transcriptions(word.getTranscriptions())
+                .build();
+    }
+
+    public static UpdateWordRequest toUpdateWordRequest(Word word) {
+        return UpdateWordRequest.builder()
+                .id(word.getId())
+                .title(word.getTitle())
+                .languageId(word.getLanguage().getId())
+                .definition(word.getDefinition())
+                .description(word.getDescription())
+                .transcriptions(word.getTranscriptions())
+                .translations(word.getTranslations())
                 .build();
     }
 
