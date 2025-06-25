@@ -4,10 +4,17 @@ import edu.architect_711.wordsapp.exception.UnauthorizedGroupModifyAttemptExcept
 import edu.architect_711.wordsapp.model.dto.group.GroupDto;
 import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
 import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
+import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
+import edu.architect_711.wordsapp.model.dto.word.WordDto;
+import edu.architect_711.wordsapp.model.entity.Word;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import edu.architect_711.wordsapp.repository.GroupRepository;
+import edu.architect_711.wordsapp.repository.LanguageRepository;
+import edu.architect_711.wordsapp.repository.NodeRepository;
+import edu.architect_711.wordsapp.repository.WordRepository;
 import edu.architect_711.wordsapp.service.account.DefaultAccountService;
 import edu.architect_711.wordsapp.service.group.GroupService;
+import edu.architect_711.wordsapp.service.word.WordService;
 import edu.architect_711.wordsapp.utils.Cleaner;
 import edu.architect_711.wordsapp.utils.Persister;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,8 +31,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toSaveGroupDto;
+import static edu.architect_711.wordsapp.model.mapper.WordMapper.toEntity;
+import static edu.architect_711.wordsapp.model.mapper.WordMapper.toSaveRequest;
 import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
 import static edu.architect_711.wordsapp.utils.Authenticator.authenticate;
 import static edu.architect_711.wordsapp.utils.TestEntityGenerator.account;
@@ -46,11 +56,19 @@ public class GroupServiceIntegrationTest {
     private GroupService groupService;
     @Autowired
     private DefaultAccountService defaultAccountService;
+    @Autowired
+    private WordService wordService;
 
     @Autowired
     private GroupRepository groupRepository;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private LanguageRepository languageRepository;
+    @Autowired
+    private WordRepository wordRepository;
+    @Autowired
+    private NodeRepository nodeRepository;
 
     private Persister persister;
     private Cleaner cleaner;
@@ -61,6 +79,7 @@ public class GroupServiceIntegrationTest {
                 .accountRepository(accountRepository)
                 .accountService(defaultAccountService)
                 .groupService(groupService)
+                .wordService(wordService)
                 .build();
         cleaner = Cleaner.builder()
                 .groupRepository(groupRepository)
@@ -259,5 +278,70 @@ public class GroupServiceIntegrationTest {
 
         // clenaup
         cleaner.clear(group.getId(), account.getId(), account2.getId());
+    }
+
+    /*
+     * There are 2 groups with the same word. When calling the `#delete` group
+     * method, it MUST delete only requested group, its nodes and all related words,
+     * which don't present in other groups.
+     * <p>
+     * So here, after `groupToBeDeleted` deletion, the `groupToBeLive` must still
+     * point to the `sharedWord`,
+     * while `groupToBeDeleted` doesn't, because it was deleted and the `uniqueWord`
+     * was deleted as well.
+     */
+    @Transactional
+    @Test
+    public void should_ok__delete__with_node_refs() {
+        // prepare
+        var account = persister.save_auth_get_account();
+
+        // our 2 groups
+        var groupToBeDeleted = persister.safe_persist_group(getAccount());
+        var groupToBeLive = persister.safe_persist_group(getAccount());
+
+        var lang = languageRepository.findN(0);
+
+        // victim group
+        long groupIdToBeDeleted = groupToBeDeleted.getId();
+
+        // with the same word
+        var shareWord = persister.safe_persist_word(lang, groupIdToBeDeleted);
+        var shareWordCopy = wordService.save(
+                toSaveRequest(toEntity(shareWord, lang)),
+                groupToBeLive.getId());
+
+        // will be deleted
+        var uniqueWord = persister.safe_persist_word(lang, groupIdToBeDeleted);
+
+        // and 2 nodes created by the WordService
+        var nodes = nodeRepository.findAllByWordId(shareWord.getId());
+
+        // check
+        assertEquals(2, nodes.size());
+
+        // words must be the same
+        compareWords(shareWord, shareWordCopy);
+
+        assertDoesNotThrow(() -> groupService.delete(groupIdToBeDeleted));
+
+        assertFalse(groupRepository.existsById(groupIdToBeDeleted));
+        assertTrue(groupRepository.existsById(groupToBeLive.getId()));
+
+        assertTrue(nodeRepository.findByGroupId(groupIdToBeDeleted).isEmpty());
+        assertTrue(nodeRepository.findByGroupId(groupToBeLive.getId()).isPresent());
+
+        assertFalse(wordRepository.existsById(uniqueWord.getId()));
+        assertTrue(wordRepository.existsById(shareWord.getId()));
+        assertTrue(wordRepository.existsById(shareWordCopy.getId())); // for any case
+
+        // cleanup
+        assertDoesNotThrow(() -> groupService.delete(groupToBeLive.getId()));
+        accountRepository.deleteById(account.getId());
+    }
+
+    private void compareWords(WordDto a, WordDto b) {
+        assertEquals(a.getId(), b.getId());
+        assertEquals(a.getTitle(), b.getTitle());
     }
 }
