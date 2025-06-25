@@ -14,44 +14,52 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NodeRepository extends JpaRepository<Node, Long> {
-    @Query(
-            nativeQuery = true,
-            value = """
-                    select * from
-                        node 
-                    where
-                        word_id = :wordId
-                    limit 1;
-                    """
-    )
-    Optional<Node> findByWordId(@Param("wordId") Long wordId);
+    List<Node> findAllByWordId(Long wordId);
 
-    // // @Query(
-    // //     nativeQuery = true,
-    // //     value = """
-                
-    // //             """
-    // )
-    // TODO expirement, write custom SQL if fails
     List<Node> findAllByGroupId(Long groupId, Pageable pageable);
 
+    List<Node> findAllByGroupId(Long groupId);
+
+    List<Node> findAllByWordIdAndGroupId(Long wordId, Long groupId);
+
+    Optional<Node> findByGroupId(Long groupId);
+
+    boolean existsByWordIdAndGroupId(Long id, Long groupId);
+
+    @Query(nativeQuery = true, value = """
+            select * from
+                node
+            where
+                word_id = :wordId
+            limit 1;
+            """)
+    Optional<Node> findByWordId(@Param("wordId") Long wordId);
+
     @Modifying
+    @Query(nativeQuery = true, value = """
+            select exists(
+                select count(1) from
+                    node
+                where
+                    word_id = :wordId
+                );
+                """)
+    boolean hasWordReferencesById(@Param("wordId") Long wordId);
+
+    boolean existsByWordId(Long wordId);
+
     @Transactional // saves from "nothing returned by the query" exception
-    @Query(
-            nativeQuery = true,
-            value = """
-                    delete from
-                        node 
-                    where
-                        word_id = :wordId;
-                    """
-    )
+    @Query(nativeQuery = true, value = """
+            delete from
+                node
+            where
+                word_id = :wordId;
+            """)
     void deleteByWordId(@Param("wordId") Long wordId);
 
-
     default Node safeFindByWordId(Long wordId) {
-        return findByWordId(wordId).orElseThrow(() -> new EntityNotFoundException("Word node wasn't found by id: " + wordId));
+        return findByWordId(wordId)
+                .orElseThrow(() -> new EntityNotFoundException("Word node wasn't found by id: " + wordId));
     }
 
-    List<Node> findAllByWordId(Long wordId);
 }
