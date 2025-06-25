@@ -6,9 +6,12 @@ import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.model.entity.Group;
 import edu.architect_711.wordsapp.repository.GroupRepository;
+import edu.architect_711.wordsapp.repository.NodeRepository;
+import edu.architect_711.wordsapp.service.word.WordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -23,6 +26,9 @@ import static edu.architect_711.wordsapp.security.utils.CheckAccess.checkGroupAc
 @Validated
 public class DefaultGroupService implements GroupService {
     private final GroupRepository groupRepository;
+    private final NodeRepository nodeRepository;
+
+    private final WordService wordService;
 
     @Override
     public GroupDto save(@Valid SaveGroupDto saveGroupDto) {
@@ -49,10 +55,20 @@ public class DefaultGroupService implements GroupService {
         return toDto(groupRepository.save(group));
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-        var group = groupRepository.safeFindById(id);
+        var group = groupRepository.findById(id).orElseGet(() -> null);
+
+        if (group == null)
+            return;
+
         checkGroupAccess(group.getAccount().getId());
+
+        var nodes = nodeRepository.findAllByGroupId(group.getId());
+
+        if (!nodes.isEmpty())
+            nodes.forEach(n -> wordService.delete(n.getWord().getId(), group.getId()));
 
         groupRepository.deleteById(id);
     }
