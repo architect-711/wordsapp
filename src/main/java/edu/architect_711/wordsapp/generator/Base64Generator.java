@@ -1,4 +1,4 @@
-package edu.architect_711.wordsapp.service;
+package edu.architect_711.wordsapp.generator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

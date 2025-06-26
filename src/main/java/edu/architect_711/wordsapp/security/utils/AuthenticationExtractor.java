@@ -1,10 +1,12 @@
-package edu.architect_711.wordsapp.security;
+package edu.architect_711.wordsapp.security.utils;
 
 import edu.architect_711.wordsapp.model.dto.account.AccountDetails;
 import edu.architect_711.wordsapp.model.entity.Account;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class AuthenticatedUserExtractor {
+public class AuthenticationExtractor {
 
     /**
      * Retrieves {@link AccountDetails} from the {@link SecurityContextHolder}.
@@ -15,7 +17,7 @@ public class AuthenticatedUserExtractor {
      * @return account details from the security context
      */
     public static AccountDetails getAccountDetails() {
-        return (AccountDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (AccountDetails) getAuthentication().getPrincipal();
     }
 
     /**
@@ -29,5 +31,21 @@ public class AuthenticatedUserExtractor {
      */
     public static Account getAccount() {
         return getAccountDetails().getAccount();
+    }
+
+    public static SecurityContext getContext() {
+        return SecurityContextHolder.getContext();
+    }
+
+    public static void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    public static Authentication getAuthentication() {
+        return getContext().getAuthentication();
+    }
+
+    public static void setAuthentication(Authentication authentication) {
+        getContext().setAuthentication(authentication);
     }
 }

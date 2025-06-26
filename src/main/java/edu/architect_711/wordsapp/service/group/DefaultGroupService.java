@@ -6,24 +6,29 @@ import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.model.entity.Group;
 import edu.architect_711.wordsapp.repository.GroupRepository;
+import edu.architect_711.wordsapp.repository.NodeRepository;
+import edu.architect_711.wordsapp.service.word.WordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Objects;
 
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toEntity;
-import static edu.architect_711.wordsapp.security.AuthenticatedUserExtractor.getAccount;
+import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
+import static edu.architect_711.wordsapp.security.utils.CheckAccess.checkGroupAccess;
 
 @Service
 @RequiredArgsConstructor
 @Validated
 public class DefaultGroupService implements GroupService {
     private final GroupRepository groupRepository;
+    private final NodeRepository nodeRepository;
+
+    private final WordService wordService;
 
     @Override
     public GroupDto save(@Valid SaveGroupDto saveGroupDto) {
@@ -42,32 +47,30 @@ public class DefaultGroupService implements GroupService {
     public GroupDto update(@Valid UpdateGroupDto updateGroupDto) {
         Group group = groupRepository.safeFindById(updateGroupDto.getId());
 
-        checkThirdPartyAccess(group.getAccount().getId());
+        checkGroupAccess(group.getAccount().getId());
 
         group.setTitle(updateGroupDto.getTitle());
         group.setDescription(updateGroupDto.getDescription());
-        
+
         return toDto(groupRepository.save(group));
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-        var group = groupRepository.safeFindById(id);
-        checkThirdPartyAccess(group.getAccount().getId());
+        var group = groupRepository.findById(id).orElseGet(() -> null);
+
+        if (group == null)
+            return;
+
+        checkGroupAccess(group.getAccount().getId());
+
+        var nodes = nodeRepository.findAllByGroupId(group.getId());
+
+        if (!nodes.isEmpty())
+            nodes.forEach(n -> wordService.delete(n.getWord().getId(), group.getId()));
 
         groupRepository.deleteById(id);
-    }
-
-    /**
-     * Check third-party access. For example when a user1 tries to access
-     * a user2 groups
-     * @param groupAccountId the group's owner id to be affected
-     */
-    private void checkThirdPartyAccess(long groupAccountId) {
-        var account = getAccount();
-
-        if (!Objects.equals(groupAccountId, account.getId()))
-            throw new AccessDeniedException("You can't delete another user group!");
     }
 
 }

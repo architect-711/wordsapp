@@ -7,14 +7,23 @@ import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.model.entity.Group;
 
 import java.util.List;
+import java.util.Set;
 
 public class GroupMapper {
+    /**
+     * Maps save request to entity, remember that it leaves related words as empty
+     * set!!!
+     * 
+     * @param groupDto dto to be mapper
+     * @param account  owner
+     * @return mapped entity
+     */
     public static Group toEntity(SaveGroupDto groupDto, Account account) {
         return new Group(
                 groupDto.getTitle(),
                 groupDto.getDescription(),
-                account
-        );
+                account,
+                Set.of());
     }
 
     public static GroupDto toDto(Group group) {
@@ -31,8 +40,11 @@ public class GroupMapper {
         return new UpdateGroupDto(
                 group.getId(),
                 group.getTitle(),
-                group.getDescription()
-        );
+                group.getDescription());
+    }
+
+    public static SaveGroupDto toSaveGroupDto(Group group) {
+        return new SaveGroupDto(group.getTitle(), group.getDescription());
     }
 
     public static List<GroupDto> toDto(List<Group> groups) {

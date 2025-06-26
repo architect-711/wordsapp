@@ -7,8 +7,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GroupRepository extends JpaRepository<Group, Long> {
+    @Query(
+        nativeQuery = true,
+        value = """
+                select * from
+                    account_group
+                where
+                    account_group.owner_id = :userId 
+                """ 
+    )
+    List<Group> findAll(@Param("userId") Long userId); 
 
     @Query(
         nativeQuery = true,
@@ -16,11 +27,11 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
                 select * from
                     account_group
                 where
-                    account_group.owner_id = :userId
-                """ 
+                    title = :title
+                limit 1; 
+                """
     )
-    List<Group> findAll(@Param("userId") Long userId);
-
+    Optional<Group> findByTitle(@Param("title") String title);
 
 
     // "safe" methods

@@ -1,12 +1,10 @@
-package edu.architect_711.wordsapp;
+package edu.architect_711.wordsapp.utils;
 
 import edu.architect_711.wordsapp.model.dto.account.AccountDetails;
 import edu.architect_711.wordsapp.model.entity.Account;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.List;
-
+import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class Authenticator {
@@ -19,12 +17,15 @@ public class Authenticator {
 
         var accountDetails = new AccountDetails(account);
 
-        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(accountDetails,
-                accountDetails.getPassword(), List.of());
+        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+            accountDetails,
+            accountDetails.getPassword(), 
+            accountDetails.getAuthorities()
+        );
 
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        setAuthentication(usernamePasswordAuthenticationToken);
 
-        assertNotNull(SecurityContextHolder.getContext());
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertNotNull(getContext());
+        assertNotNull(getAuthentication());
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
  * <p>
  * This is very helpful. You don't need to search for the authenticated user entity in the database,
  * because it's already in the Authentication, since a user went through the {@link org.springframework.security.web.SecurityFilterChain}
- * and loaded from the database by the {@link edu.architect_711.wordsapp.service.account.AccountDetailsService}
+ * and loaded from the database by the {@link edu.architect_711.wordsapp.security.service.AccountDetailsService}
  */
 @AllArgsConstructor
 @NoArgsConstructor
