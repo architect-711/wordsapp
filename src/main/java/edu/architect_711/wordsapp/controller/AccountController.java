@@ -20,7 +20,7 @@ public class AccountController {
     }
 
     @SecurityRequirements
-    @PostMapping("/login64")
+    @PostMapping("/login64") // TODO auth fails, because it returns and encodes an enctypted password
     public String login64(@RequestBody AccountLoginRequest accountLoginRequest) {
         return accountService.login64(accountLoginRequest);
     }
