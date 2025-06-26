@@ -52,6 +52,11 @@ public class EndpointAccessibilityIntegrationTest {
 
         putEntrypoint(GET,  "/api/groups", true);
         putEntrypoint(POST, "/api/groups", true);
+
+        putEntrypoint(GET, "/api/words/1", true);
+        putEntrypoint(GET, "/api/words/groups/1", true);
+        putEntrypoint(POST, "/api/words/groups/1", true);
+        putEntrypoint(DELETE, "/api/words/groups/1/1", true);
     }
 
     @Test
