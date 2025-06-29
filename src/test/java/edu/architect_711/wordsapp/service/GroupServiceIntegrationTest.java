@@ -5,11 +5,7 @@ import edu.architect_711.wordsapp.model.dto.group.GroupDto;
 import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
 import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
-import edu.architect_711.wordsapp.repository.AccountRepository;
-import edu.architect_711.wordsapp.repository.GroupRepository;
-import edu.architect_711.wordsapp.repository.LanguageRepository;
-import edu.architect_711.wordsapp.repository.NodeRepository;
-import edu.architect_711.wordsapp.repository.WordRepository;
+import edu.architect_711.wordsapp.repository.*;
 import edu.architect_711.wordsapp.service.account.DefaultAccountService;
 import edu.architect_711.wordsapp.service.group.GroupService;
 import edu.architect_711.wordsapp.service.word.WordService;
@@ -20,9 +16,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-
-import java.util.Set;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,21 +24,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toSaveGroupDto;
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toEntity;
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toSaveRequest;
 import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
 import static edu.architect_711.wordsapp.utils.Authenticator.authenticate;
-import static edu.architect_711.wordsapp.utils.TestEntityGenerator.account;
-import static edu.architect_711.wordsapp.utils.TestEntityGenerator.group;
-import static edu.architect_711.wordsapp.utils.TestEntityGenerator.updateGroupDto;
+import static edu.architect_711.wordsapp.utils.TestEntityGenerator.*;
 import static edu.architect_711.wordsapp.utils.TestUtils.safeCleanAuth;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -140,7 +128,7 @@ public class GroupServiceIntegrationTest {
 
         assertNotNull(found);
 
-        assertTrue(found.size() >= 1);
+        assertFalse(found.isEmpty());
         found.forEach(f -> assertEquals(f.getOwnerId(), getAccount().getId()));
 
         // cleanup
