@@ -16,7 +16,8 @@ public class SaveWordRequest {
     @NotBlank
     private String title;
 
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long languageId;
 
     private String definition;

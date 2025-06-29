@@ -4,9 +4,7 @@ import edu.architect_711.wordsapp.exception.UnauthorizedGroupModifyAttemptExcept
 import edu.architect_711.wordsapp.model.dto.group.GroupDto;
 import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
 import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
-import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
-import edu.architect_711.wordsapp.model.entity.Word;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import edu.architect_711.wordsapp.repository.GroupRepository;
 import edu.architect_711.wordsapp.repository.LanguageRepository;
@@ -151,7 +149,7 @@ public class GroupServiceIntegrationTest {
 
     /* --------------- UPDATE --------------- */
     @Test
-    public void should_ok__upate() {
+    public void should_ok__update() {
         // prepare
         var account = persister.save_auth_get_account();
         var group = persister.safe_persist_group(getAccount());
@@ -276,7 +274,7 @@ public class GroupServiceIntegrationTest {
 
         assertTrue(groupRepository.findById(group.getId()).isPresent());
 
-        // clenaup
+        // cleanup
         cleaner.clear(group.getId(), account.getId(), account2.getId());
     }
 

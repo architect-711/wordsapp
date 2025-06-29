@@ -19,7 +19,7 @@ import java.util.List;
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.GroupMapper.toEntity;
 import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
-import static edu.architect_711.wordsapp.security.utils.CheckAccess.checkGroupAccess;
+import static edu.architect_711.wordsapp.security.utils.AccessChecker.checkGroupAccess;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +58,7 @@ public class DefaultGroupService implements GroupService {
     @Transactional
     @Override
     public void delete(Long id) {
-        var group = groupRepository.findById(id).orElseGet(() -> null);
+        var group = groupRepository.findById(id).orElse(null);
 
         if (group == null)
             return;

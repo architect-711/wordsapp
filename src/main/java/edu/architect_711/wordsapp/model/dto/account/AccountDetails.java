@@ -35,6 +35,7 @@ public class AccountDetails implements UserDetails {
         this.authorities = List.of();
     }
 
+    // TODO update account schema for the below features support
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;

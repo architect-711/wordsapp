@@ -10,8 +10,8 @@ import edu.architect_711.wordsapp.model.entity.Word;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-/*
- * Generates @Entities to be persisted for testing
+/**
+ * Generates @{@link jakarta.persistence.Entity}s to be persisted for testing
  */
 public class TestEntityGenerator {
     public static Account account() {
@@ -26,8 +26,8 @@ public class TestEntityGenerator {
                 .title("test_" + LocalDateTime.now())
                 .language(language).definition("def")
                 .description("description")
-                .transcriptions(new String[] { "asdf", "asdf" })
-                .translations(new String[] { "asdf" })
+                .transcriptions(new String[]{"asdf", "asdf"})
+                .translations(new String[]{"asdf"})
                 .build();
     }
 

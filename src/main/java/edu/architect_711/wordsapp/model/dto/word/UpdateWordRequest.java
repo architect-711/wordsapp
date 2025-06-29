@@ -18,13 +18,15 @@ import java.util.List;
 @Setter
 public class UpdateWordRequest {
 
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long id;
 
     @NotBlank
     private String title;
 
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long languageId;
 
     private String definition;
@@ -34,5 +36,13 @@ public class UpdateWordRequest {
     private List<String> translations;
 
     private List<String> transcriptions;
-    
+
+    public List<String> getTranslations() {
+        return translations != null ? translations : List.of();
+    }
+
+    public List<String> getTranscriptions() {
+        return transcriptions != null ? transcriptions : List.of();
+    }
+
 }

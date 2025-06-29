@@ -9,7 +9,8 @@ import java.util.List;
 
 import static edu.architect_711.wordsapp.model.mapper.LanguageMapper.toDto;
 
-@Service @RequiredArgsConstructor
+@Service
+@RequiredArgsConstructor
 public class DefaultLanguageService implements LanguageService {
     private final LanguageRepository languageRepository;
 

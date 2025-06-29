@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class Authenticator {
     /**
      * Mock actual authentication mechanism, since it doesn't matter here
+     *
      * @param account the account that must exist
      */
     public static void authenticate(Account account) {
@@ -18,9 +19,9 @@ public class Authenticator {
         var accountDetails = new AccountDetails(account);
 
         var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-            accountDetails,
-            accountDetails.getPassword(), 
-            accountDetails.getAuthorities()
+                accountDetails,
+                accountDetails.getPassword(),
+                accountDetails.getAuthorities()
         );
 
         setAuthentication(usernamePasswordAuthenticationToken);

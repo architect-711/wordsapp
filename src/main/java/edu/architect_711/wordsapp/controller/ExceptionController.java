@@ -13,6 +13,8 @@ public class ExceptionController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e) {
         System.out.println("RuntimeException: " + e.getMessage());
+        System.out.println("The stack trace: ");
+        e.printStackTrace();
         return new ResponseEntity<>(new ErrorResponse(
                 e.getMessage(),
                 e.getLocalizedMessage()

@@ -15,10 +15,10 @@ import lombok.Setter;
 
 @Entity
 @Table(
-    name = "node",
-    uniqueConstraints = @UniqueConstraint(
-        columnNames = {"group_id", "word_id"}
-    )
+        name = "node",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"group_id", "word_id"}
+        )
 )
 @NoArgsConstructor
 @AllArgsConstructor

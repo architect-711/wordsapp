@@ -6,9 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data @AllArgsConstructor
+@Data
+@AllArgsConstructor
 public class UpdateGroupDto {
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long id;
     @NotBlank
     private String title;

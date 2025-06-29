@@ -9,13 +9,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-@Component @RequiredArgsConstructor
+@Component
+@RequiredArgsConstructor
 public class AccountDetailsService implements UserDetailsService {
     private final AccountRepository accountRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = accountRepository.safeFindByUsername(username);
+        Account account = accountRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found with username: " + username));
 
         return new AccountDetails(account);
     }
