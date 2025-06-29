@@ -7,6 +7,7 @@ import java.util.List;
 public interface LanguageService {
     /**
      * Find all languages
+     *
      * @return all languages
      */
     List<LanguageDto> get();

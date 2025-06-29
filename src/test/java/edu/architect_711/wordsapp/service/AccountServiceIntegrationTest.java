@@ -2,13 +2,11 @@ package edu.architect_711.wordsapp.service;
 
 import edu.architect_711.wordsapp.model.dto.account.AccountDto;
 import edu.architect_711.wordsapp.model.dto.account.SaveAccountDto;
+import edu.architect_711.wordsapp.model.dto.account.UpdateAccountRequest;
 import edu.architect_711.wordsapp.repository.AccountRepository;
 import edu.architect_711.wordsapp.service.account.DefaultAccountService;
 import edu.architect_711.wordsapp.utils.Persister;
 import jakarta.validation.ConstraintViolationException;
-
-import java.time.LocalDateTime;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,15 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.LocalDateTime;
+
 import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toSaveAccountDto;
 import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAuthentication;
 import static edu.architect_711.wordsapp.utils.TestUtils.safeCleanAuth;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -93,7 +88,7 @@ public class AccountServiceIntegrationTest {
         var saved = persister.save_auth_get_account();
 
         // check
-        AccountDto account = assertDoesNotThrow(() -> defaultAccountService.get());
+        AccountDto account = assertDoesNotThrow(() -> defaultAccountService.get().orElseThrow());
 
         assertNotNull(account);
         assertNotNull(account.getUsername());
@@ -113,7 +108,7 @@ public class AccountServiceIntegrationTest {
         // persist
         var saved = persister.save_auth_get_account();
 
-        var updateRequest = new AccountDto(saved.getId(), "new_username_" + LocalDateTime.now(), "new_email");
+        var updateRequest = new UpdateAccountRequest("new_username_" + LocalDateTime.now(), "new_email");
 
         // check
         AccountDto updateResponse = assertDoesNotThrow(() -> defaultAccountService.update(updateRequest));
@@ -134,12 +129,8 @@ public class AccountServiceIntegrationTest {
         var saved = persister.save_auth_get_account();
 
         // check
-        AccountDto invalid = new AccountDto(saved.getId(), "     ", null);
+        var invalid = new UpdateAccountRequest("     ", null);
         assertThrows(ConstraintViolationException.class, () -> defaultAccountService.update(invalid));
-
-        invalid.setId(-1L);
-
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.update(invalid)); // just for fun
 
         // cleanup
         accountRepository.deleteById(saved.getId());

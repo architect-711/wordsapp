@@ -1,7 +1,5 @@
 package edu.architect_711.wordsapp.service.word;
 
-import edu.architect_711.wordsapp.exception.NodePointsToNothingException;
-import edu.architect_711.wordsapp.exception.WordNotFoundException;
 import edu.architect_711.wordsapp.model.dto.word.SaveWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
@@ -14,19 +12,18 @@ import edu.architect_711.wordsapp.repository.WordRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toDto;
 import static edu.architect_711.wordsapp.model.mapper.WordMapper.toEntity;
-import static edu.architect_711.wordsapp.security.utils.CheckAccess.checkGroupAccess;
+import static edu.architect_711.wordsapp.security.utils.AccessChecker.checkGroupAccess;
 
 @Service
 @RequiredArgsConstructor
@@ -47,16 +44,12 @@ public class DefaultWordService implements WordService {
 
         var language = languageRepository.safeFindById(saveWordRequest.getLanguageId());
 
-        Optional<Word> found = wordRepository.findByTitle(saveWordRequest.getTitle());
-        Word word = found.isEmpty()
-                ? wordRepository.save(toEntity(saveWordRequest, language))
-                : found.get();
+        Word word = wordRepository
+                .findByTitle(saveWordRequest.getTitle())
+                .orElseGet(() -> wordRepository.save(toEntity(saveWordRequest, language)));
 
-        if (!nodeRepository.existsByWordIdAndGroupId(word.getId(), groupId)) {
-            var nodeMap = new Node(group, word);
-
-            nodeRepository.save(nodeMap);
-        }
+        if (!nodeRepository.existsByWordIdAndGroupId(word.getId(), groupId))
+            nodeRepository.save(new Node(group, word));
 
         return toDto(word);
     }
@@ -64,16 +57,16 @@ public class DefaultWordService implements WordService {
     @Override
     public List<WordDto> get(int page, int size, Long groupId) {
         var wordNodes = nodeRepository.findAllByGroupId(groupId, PageRequest.of(page, size));
+
+        if (wordNodes.isEmpty())
+            return List.of();
+
         var res = new ArrayList<WordDto>(wordNodes.size());
 
         for (Node node : wordNodes) {
-            var found = wordRepository.findById(node.getWord().getId());
+            var found = wordRepository.safeFindById(node.getWord().getId());
 
-            // This should never happen
-            if (found.isEmpty())
-                stateFail("This should never happen. For some reason the node's word_id points to the void.");
-
-            res.add(toDto(found.get()));
+            res.add(toDto(found));
         }
 
         return res;
@@ -86,48 +79,32 @@ public class DefaultWordService implements WordService {
         if (node.isEmpty())
             return Optional.empty();
 
-        var group = groupRepository.findById(node.get().getGroup().getId());
+        var group = groupRepository.safeFindById(node.get().getGroup().getId());
 
-        // should never happen
-        if (group.isEmpty())
-            stateFail("Despite the node exist, the group wasn't found");
+        checkGroupAccess(group.getAccount().getId());
 
-        checkGroupAccess(group.get().getAccount().getId());
+        var word = wordRepository.safeFindById(wordId);
 
-        var word = wordRepository.findById(wordId);
-
-        // should never happen
-        if (word.isEmpty())
-            stateFail("For some reason the word does not exist, although the node exists! This should never happen.");
-
-        return Optional.of(toDto(word.get()));
+        return Optional.of(toDto(word));
     }
 
-    @Transactional
+    // TODO @Transactional breaks everything even if specify it also in the controller, but it must be
     @Override
     public void delete(Long wordId, Long groupId) {
-        // findAll because for the case, when data was saved not properly
         var nodes = nodeRepository.findAllByWordIdAndGroupId(wordId, groupId);
 
         if (nodes.isEmpty())
             return;
 
-        var group = groupRepository.findById(groupId).orElseGet(() -> null);
-
-        // should never happen
-        if (group == null) {
-            stateFail("This should never happen. The node points to the fabulous group!");
-            return;
-        }
+        var group = groupRepository.safeFindById(groupId);
 
         checkGroupAccess(group.getAccount().getId());
 
         nodeRepository.deleteAllById(nodes.stream().map(Node::getId).toList());
 
-        // if there's no any groups refering to this word, then delete it
-        if (!nodeRepository.existsByWordId(wordId)) {
+        // if there's no any groups referencing to this word, then delete it
+        if (!nodeRepository.existsByWordId(wordId))
             delete(wordId);
-        }
     }
 
     @Override
@@ -137,7 +114,7 @@ public class DefaultWordService implements WordService {
 
     @Override
     public WordDto update(@Valid UpdateWordRequest updateWord) {
-        var word = wordRepository.findById(updateWord.getId()).orElseThrow(() -> new WordNotFoundException("Word was not found with id: " + updateWord.getId()));
+        var word = wordRepository.safeFindById(updateWord.getId());
         var lang = languageRepository.safeFindById(updateWord.getLanguageId());
 
         word.setTitle(updateWord.getTitle());
@@ -149,11 +126,6 @@ public class DefaultWordService implements WordService {
 
         return toDto(wordRepository.save(word));
 
-    }
-
-    private void stateFail(String message) throws NodePointsToNothingException {
-        log.error(message);
-        throw new NodePointsToNothingException(message);
     }
 
 }

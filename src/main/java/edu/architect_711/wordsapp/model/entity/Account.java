@@ -11,10 +11,12 @@ import java.util.Set;
 @Entity
 @Table(name = "account")
 @AllArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class Account {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, name = "username")

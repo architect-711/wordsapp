@@ -15,13 +15,15 @@ import java.util.List;
 @Setter
 public class WordDto {
 
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long id;
 
     @NotBlank
     private String title;
 
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long languageId;
 
     private String definition;

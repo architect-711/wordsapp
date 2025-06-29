@@ -5,11 +5,7 @@ import edu.architect_711.wordsapp.model.dto.word.SaveWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.UpdateWordRequest;
 import edu.architect_711.wordsapp.model.dto.word.WordDto;
 import edu.architect_711.wordsapp.model.entity.Word;
-import edu.architect_711.wordsapp.repository.AccountRepository;
-import edu.architect_711.wordsapp.repository.GroupRepository;
-import edu.architect_711.wordsapp.repository.LanguageRepository;
-import edu.architect_711.wordsapp.repository.NodeRepository;
-import edu.architect_711.wordsapp.repository.WordRepository;
+import edu.architect_711.wordsapp.repository.*;
 import edu.architect_711.wordsapp.service.account.AccountService;
 import edu.architect_711.wordsapp.service.group.GroupService;
 import edu.architect_711.wordsapp.service.word.DefaultWordService;
@@ -19,9 +15,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-
-import java.util.Set;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,19 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import static edu.architect_711.wordsapp.model.mapper.WordMapper.toDto;
-import static edu.architect_711.wordsapp.model.mapper.WordMapper.toEntity;
-import static edu.architect_711.wordsapp.model.mapper.WordMapper.toSaveRequest;
-import static edu.architect_711.wordsapp.model.mapper.WordMapper.toUpdateWordRequest;
+import java.util.Set;
+
+import static edu.architect_711.wordsapp.model.mapper.WordMapper.*;
 import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAccount;
 import static edu.architect_711.wordsapp.utils.TestEntityGenerator.word;
 import static edu.architect_711.wordsapp.utils.TestUtils.safeCleanAuth;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
@@ -92,6 +79,7 @@ public class WordServiceIntegrationTest {
 
     /* --------------- SAVE --------------- */
     @Test
+//     @Transactional
     public void should_ok__save() {
         // prepare
         var account = persister.save_auth_get_account();
@@ -110,7 +98,7 @@ public class WordServiceIntegrationTest {
         assertNotNull(word.getId());
         assertNotNull(word.getCreated());
 
-        // persist to node
+        // find the node
         var node = assertDoesNotThrow(() -> nodeRepository.safeFindByWordId(word.getId()));
 
         // check whether the node was saved properly
@@ -236,10 +224,10 @@ public class WordServiceIntegrationTest {
         var account = persister.save_auth_get_account();
         var group = persister.safe_persist_group(getAccount());
 
-        var faboulosWordId = 9999999L;
+        var fabulousWordId = 9999999L;
 
         // check
-        var found = assertDoesNotThrow(() -> wordService.get(faboulosWordId));
+        var found = assertDoesNotThrow(() -> wordService.get(fabulousWordId));
 
         assertTrue(found.isEmpty());
 
@@ -321,6 +309,7 @@ public class WordServiceIntegrationTest {
 
     /* --------------- UPDATE --------------- */
     @Test
+    @Transactional
     public void should_ok__update() {
         // prepare
         var account = persister.save_auth_get_account();
@@ -359,6 +348,7 @@ public class WordServiceIntegrationTest {
     }
 
     @Test
+    @Transactional
     public void should_fail__update__illegal_arguments() {
         // prepare
         var account = persister.save_auth_get_account();

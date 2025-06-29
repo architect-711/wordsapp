@@ -37,9 +37,9 @@ public class Group {
 
     @ManyToMany(fetch = FetchType.EAGER) // saves from "No session" exception
     @JoinTable(
-        name = "node",
-        joinColumns = @JoinColumn(name = "group_id"),
-        inverseJoinColumns = @JoinColumn(name = "word_id")
+            name = "node",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "word_id")
     )
     private Set<Word> words;
 

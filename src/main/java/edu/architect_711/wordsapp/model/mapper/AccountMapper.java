@@ -20,7 +20,7 @@ public class AccountMapper {
      * has returned the {@link AccountDto} but we need to somehow set Authentication
      * object, that required the `password` field
      * to be specified. In such case the raw password is usually passed
-     * 
+     *
      * @param accountDto saved account
      * @param password   might be raw password, use carefully
      * @return mapped account entity

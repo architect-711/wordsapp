@@ -2,7 +2,6 @@ package edu.architect_711.wordsapp.model.mapper;
 
 import edu.architect_711.wordsapp.model.dto.group.GroupDto;
 import edu.architect_711.wordsapp.model.dto.group.SaveGroupDto;
-import edu.architect_711.wordsapp.model.dto.group.UpdateGroupDto;
 import edu.architect_711.wordsapp.model.entity.Account;
 import edu.architect_711.wordsapp.model.entity.Group;
 
@@ -13,7 +12,7 @@ public class GroupMapper {
     /**
      * Maps save request to entity, remember that it leaves related words as empty
      * set!!!
-     * 
+     *
      * @param groupDto dto to be mapper
      * @param account  owner
      * @return mapped entity
@@ -34,13 +33,6 @@ public class GroupMapper {
                 .description(group.getDescription())
                 .ownerId(group.getAccount().getId())
                 .build();
-    }
-
-    public static UpdateGroupDto toUpdateDto(Group group) {
-        return new UpdateGroupDto(
-                group.getId(),
-                group.getTitle(),
-                group.getDescription());
     }
 
     public static SaveGroupDto toSaveGroupDto(Group group) {

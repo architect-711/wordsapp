@@ -2,15 +2,15 @@ package edu.architect_711.wordsapp.model.dto.account;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class AccountLoginRequest {
+@Getter
+@Setter
+public class UpdateAccountRequest {
+    @NotBlank
+    private String email;
     @NotBlank
     private String username;
-    @NotBlank
-    private String password;
 }

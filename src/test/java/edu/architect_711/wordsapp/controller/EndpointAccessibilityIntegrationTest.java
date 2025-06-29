@@ -32,25 +32,26 @@ public class EndpointAccessibilityIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    public record Entrypoint(HttpMethod httpMethod, String endpoint, boolean isSecure) {}
+    public record Entrypoint(HttpMethod httpMethod, String endpoint, boolean isSecure) {
+    }
 
-    public final List<Entrypoint> entrypoints = new ArrayList<>();
+    public final List<Entrypoint> endpoints = new ArrayList<>();
 
     private void putEntrypoint(HttpMethod httpMethod, String endpoint, boolean isSecure) {
-        entrypoints.add(new Entrypoint(httpMethod, endpoint, isSecure));
+        endpoints.add(new Entrypoint(httpMethod, endpoint, isSecure));
     }
 
     @BeforeAll
     public void setup() {
-        putEntrypoint(GET,  "/api/languages", false);
+        putEntrypoint(GET, "/api/languages", false);
 
         putEntrypoint(POST, "/api/login64", true);
         putEntrypoint(POST, "/api/accounts", false);
-        putEntrypoint(GET,  "/api/accounts", true);
-        putEntrypoint(PUT,  "/api/accounts", true);
-        putEntrypoint(DELETE,   "/api/accounts", true);
+        putEntrypoint(GET, "/api/accounts", true);
+        putEntrypoint(PUT, "/api/accounts", true);
+        putEntrypoint(DELETE, "/api/accounts", true);
 
-        putEntrypoint(GET,  "/api/groups", true);
+        putEntrypoint(GET, "/api/groups", true);
         putEntrypoint(POST, "/api/groups", true);
 
         putEntrypoint(GET, "/api/words/1", true);
@@ -61,7 +62,7 @@ public class EndpointAccessibilityIntegrationTest {
 
     @Test
     public void accessibility_test() throws Exception {
-        for (Entrypoint entrypoint : entrypoints)
+        for (Entrypoint entrypoint : endpoints)
             makeRequest(entrypoint);
     }
 
@@ -70,13 +71,14 @@ public class EndpointAccessibilityIntegrationTest {
 
         mockMvc
                 .perform(requestMatcher)
-                .andExpect(status().is( matcher(entrypoint) ));
+                .andExpect(status().is(matcher(entrypoint)));
     }
 
     private Matcher<Integer> matcher(Entrypoint entrypoint) {
         return new BaseMatcher<>() {
             @Override
-            public void describeTo(Description description) {}
+            public void describeTo(Description description) {
+            }
 
             @Override
             public boolean matches(Object actual) {
@@ -87,6 +89,7 @@ public class EndpointAccessibilityIntegrationTest {
                     return actual.equals(HttpStatus.UNAUTHORIZED.value()) || actual.equals(HttpStatus.FORBIDDEN.value());
                 }
                 log.debug("Endpoint {} with method {} isn't secure", entrypoint.endpoint, entrypoint.httpMethod);
+
                 return true;
             }
         };
@@ -95,10 +98,10 @@ public class EndpointAccessibilityIntegrationTest {
     private MockHttpServletRequestBuilder determineMethod(Entrypoint entrypoint) {
         var httpMethod = entrypoint.httpMethod;
 
-        if      (httpMethod == GET)     return get(entrypoint.endpoint);
-        else if (httpMethod == POST)    return post(entrypoint.endpoint);
-        else if (httpMethod == PUT)     return put(entrypoint.endpoint);
-        else if (httpMethod == DELETE)  return delete(entrypoint.endpoint);
+        if (httpMethod == GET) return get(entrypoint.endpoint);
+        else if (httpMethod == POST) return post(entrypoint.endpoint);
+        else if (httpMethod == PUT) return put(entrypoint.endpoint);
+        else if (httpMethod == DELETE) return delete(entrypoint.endpoint);
 
         else throw new IllegalArgumentException("Unsupported HTTP method: " + httpMethod);
     }

@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder
 public class GroupDto {
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long id;
 
     @NotBlank
@@ -26,6 +28,7 @@ public class GroupDto {
     @NotBlank
     private String description;
 
-    @NotNull @Min(0)
+    @NotNull
+    @Min(0)
     private Long ownerId;
 }
