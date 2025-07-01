@@ -41,3 +41,5 @@ out/
 
 ## Custom
 todo.txt
+logs/
+config/
