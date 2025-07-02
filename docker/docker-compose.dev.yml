@@ -1,0 +1,14 @@
+services:
+  db_dev:
+    image: postgres:17
+    volumes:
+      - dev_db_data:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_HOST_PORT}:5432
+    environment:
+      - POSTGRES_DB=wordsapp
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      
+volumes:
+  dev_db_data:

@@ -1,100 +1,153 @@
 package edu.architect_711.wordsapp.service;
 
-import edu.architect_711.wordsapp.model.dto.AccountDto;
-import edu.architect_711.wordsapp.model.dto.SaveAccountDto;
+import edu.architect_711.wordsapp.model.dto.account.AccountDto;
+import edu.architect_711.wordsapp.model.dto.account.SaveAccountDto;
+import edu.architect_711.wordsapp.model.dto.account.UpdateAccountRequest;
 import edu.architect_711.wordsapp.repository.AccountRepository;
-import jakarta.transaction.Transactional;
+import edu.architect_711.wordsapp.service.account.DefaultAccountService;
+import edu.architect_711.wordsapp.utils.Persister;
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 
+import static edu.architect_711.wordsapp.model.mapper.AccountMapper.toSaveAccountDto;
+import static edu.architect_711.wordsapp.security.utils.AuthenticationExtractor.getAuthentication;
+import static edu.architect_711.wordsapp.utils.TestUtils.safeCleanAuth;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AccountServiceIntegrationTest {
     @Autowired
     private DefaultAccountService defaultAccountService;
     @Autowired
     private AccountRepository accountRepository;
 
-    public final SaveAccountDto UNEXISTING_ACCOUNT = new SaveAccountDto("test_" +LocalDateTime.now(), "1234", LocalDateTime.now() + "_name@domain.tld");
+    private Persister persister;
 
-    private AccountDto savedBuff;
+    @BeforeAll
+    public void setup() {
+        persister = Persister.builder()
+                .accountRepository(accountRepository)
+                .accountService(defaultAccountService)
+                .build();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        safeCleanAuth();
+    }
+
+    /* --------------- SAVE --------------- */
+    @Test
+    public void should_ok__save() {
+        // persist
+        var account = persister.safe_persist_account();
+
+        // cleanup
+        accountRepository.deleteById(account.getId());
+    }
 
     @Test
-    @Order(1)
-    public void should_ok__save_new() {
-        savedBuff = assertDoesNotThrow(() -> defaultAccountService.save(UNEXISTING_ACCOUNT));
-        assertDoesNotThrow(() -> accountRepository.getReferenceById(savedBuff.getId()));
+    public void should_fail__save__already_exists() {
+        // persist
+        var account = persister.safe_persist_account();
+
+        // check
+        assertThrows(
+                DataIntegrityViolationException.class,
+                () -> defaultAccountService.save(toSaveAccountDto(account)));
+
+        // cleanup
+        accountRepository.deleteById(account.getId());
     }
+
     @Test
-    @Order(2)
-    public void should_fail__save_new__already_exists() {
-        assertThrows(DataIntegrityViolationException.class, () -> defaultAccountService.save(UNEXISTING_ACCOUNT));
-    }
-    @Test
-    @Order(3)
-    public void should_fail__save_new__illegal_arguments() {
-        SaveAccountDto invalid = new SaveAccountDto("   ", null, null);
+    public void should_fail__save__illegal_arguments() {
+        // model
+        var invalid = new SaveAccountDto("   ", null, null);
+
+        // check
         assertThrows(ConstraintViolationException.class, () -> defaultAccountService.save(invalid));
+
+        var found = accountRepository.findByUsername(invalid.getUsername());
+        assertTrue(found.isEmpty());
     }
 
+    /* --------------- GET --------------- */
+    @Test
+    public void should_ok__get() {
+        // persist
+        var saved = persister.save_auth_get_account();
 
-
-    @Test @Order(4)
-    @Transactional
-    public void should_ok__get_saved_by_id() {
-        AccountDto account = assertDoesNotThrow(() -> defaultAccountService.get(savedBuff.getId()));
+        // check
+        AccountDto account = assertDoesNotThrow(() -> defaultAccountService.get().orElseThrow());
 
         assertNotNull(account);
-        assertEquals(savedBuff.getId(), account.getId());
         assertNotNull(account.getUsername());
         assertNotNull(account.getEmail());
-    }
-    @Test @Order(5)
-    @Transactional
-    public void should_fail__get_saved_by_id__illegal_arguments() {
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.get(-1L));
-    }
 
+        assertEquals(saved.getId(), account.getId());
+        assertEquals(saved.getUsername(), account.getUsername());
+        assertEquals(saved.getEmail(), account.getEmail());
 
-
-    @Test @Order(6)
-    @Transactional
-    public void should_ok__update_saved() {
-        AccountDto newOne = new AccountDto(savedBuff.getId(), "new_username", "new_email");
-
-        AccountDto accountDto = assertDoesNotThrow(() -> defaultAccountService.update(newOne));
-
-        assertNotNull(accountDto);
-        assertEquals(savedBuff.getId(), accountDto.getId());
-        assertEquals(newOne.getUsername(), accountDto.getUsername());
-        assertEquals(newOne.getEmail(), accountDto.getEmail());
-    }
-    @Test @Order(7)
-    public void should_fail__update_saved__illegal_arguments() {
-        AccountDto newOne = new AccountDto(savedBuff.getId(), "     ", null);
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.update(newOne));
-
-        newOne.setId(-1L);
-
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.update(newOne));
+        // cleanup
+        accountRepository.deleteById(saved.getId());
     }
 
+    /* --------------- UPDATE --------------- */
+    @Test
+    public void should_ok__update() {
+        // persist
+        var saved = persister.save_auth_get_account();
 
+        var updateRequest = new UpdateAccountRequest("new_username_" + LocalDateTime.now(), "new_email");
 
-    @Test @Order(8)
-    public void should_ok__delete_saved() {
-        assertDoesNotThrow(() -> defaultAccountService.delete(savedBuff.getId()));
+        // check
+        AccountDto updateResponse = assertDoesNotThrow(() -> defaultAccountService.update(updateRequest));
+
+        assertNotNull(updateRequest);
+
+        assertEquals(saved.getId(), updateResponse.getId());
+        assertEquals(saved.getUsername(), updateResponse.getUsername());
+        assertEquals(saved.getEmail(), updateResponse.getEmail());
+
+        // cleanup
+        accountRepository.deleteById(saved.getId());
     }
-    @Test @Order(9)
-    public void should_fail__delete_unreal__illegal_arguments() {
-        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.delete(-1L));
+
+    @Test
+    public void should_fail__update__illegal_arguments() {
+        // persist
+        var saved = persister.save_auth_get_account();
+
+        // check
+        var invalid = new UpdateAccountRequest("     ", null);
+        assertThrows(ConstraintViolationException.class, () -> defaultAccountService.update(invalid));
+
+        // cleanup
+        accountRepository.deleteById(saved.getId());
+    }
+
+    /* --------------- DELETE --------------- */
+    @Test
+    public void should_ok__delete() {
+        // persist
+        var saved = persister.save_auth_get_account();
+
+        // check
+        assertDoesNotThrow(() -> defaultAccountService.delete());
+
+        var found = accountRepository.findById(saved.getId());
+        assertTrue(found.isEmpty());
+
+        assertNull(getAuthentication());
     }
 }
