@@ -140,7 +140,7 @@ function ask_to_kill_danglings() {
 
     [ "$shouldKill" != "y" ] && return
     
-    docker rmi $(docker images -f "dangling=true" -q) -f >> "$LOG_DIR/$LOG_FILE" 2>&1 # TODO || true
+    docker rmi $(docker images -f "dangling=true" -q) -f >> "$LOG_DIR/$LOG_FILE" 2>&1
 }
 
 # runs all services, first arg is the profile compose file

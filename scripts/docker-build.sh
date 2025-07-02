@@ -43,7 +43,6 @@ check_docker_compose_files "$DB_COMPOSE_PROD"
 check_docker_compose_files "$DB_COMPOSE_TEST"
 
 test_app() (
-    # TODO hmm, source test config?
     source "$TEST_ENV_FILE"
 
     echo "👉 Starting test DB container"
