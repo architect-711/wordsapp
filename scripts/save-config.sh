@@ -27,7 +27,10 @@ function copy_version() {
 function add_envs() {
     read -p "👉 Enter env files from '$CONFIG_DIR' folder to be added (ex: '.env.a:.env.b'): " envFilesString
 
-    check_empty "$envFilesString" "env files string"
+    if [ -z "$envFilesString" ]; then
+        printf "\tNo env files specified\n"
+        return 0
+    fi
 
     IFS=':' read -ra envFiles <<< "$envFilesString"
 
