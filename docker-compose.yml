@@ -1,6 +1,6 @@
 services:
   backend:
-    image: 97f5d/wordsapp-backend
+    image: 97f5d/wordsapp-backend:${VERSION}
     build:
       context: .
       args:
