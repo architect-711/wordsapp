@@ -1,68 +1,66 @@
 #/bin/bash
 
-# fail on any error
-set -e
-
 # import often used functions
 source "scripts/utils.sh"
 
+# fail on any error
+set -e
+
 # config
-export VERSION="0.0.0-SNAPSHOT"
-buildFile="wordsapp-$VERSION.jar"
-buildFileDir="build/libs"
+PROFILE="$1"
+DB_COMPOSE_FILE="docker/docker-compose.$PROFILE.yml"
+ENV_FILE="$CONFIG_DIR/.env.$PROFILE"
 
-profiles=("dev" "test" "prod")
-profile="$1"
+# make log dir if not done before
+mkdir -p "$LOG_DIR"
 
-dockerLogDir="logs"
-dockerLogFileFull="$dockerLogDir/docker.log"
-
-profileComposeFile="docker/docker-compose.$profile.yml"
-mainComposeFile="docker-compose.yml"
-
-envFile="config/.env.$profile"
-service="backend"
-
-mkdir -p "$dockerLogDir"
-
-# We don't clear it, we append to it
-printf "\n\n\n\n[$(date)] New docker-run.sh call: \n\n" >> "$dockerLogFileFull"
+# notify about new docker run
+printf "\n\n\n\n[$(date)] New 'docker-run.sh' call: \n\n" >> "$LOG_DIR/$LOG_FILE"
 
 # check configs 
-check_profile "$profile"
-check_env "$envFile" && source "$envFile"
-check_docker_compose_files "$mainComposeFile" "$profileComposeFile"
+check_profile "$PROFILE"
+check_env "$ENV_FILE" && source "$ENV_FILE"
+safe_export_version
+check_docker_compose_files "$DB_COMPOSE_FILE"
 
 read -p "❔ Have you build the app before? (y/n): " builtBefore
 if [ "$builtBefore" == "y" ]; then
-    compose_up "$mainComposeFile" "$profileComposeFile" "$dockerLogFileFull"
+    compose_up "$DB_COMPOSE_FILE"
 
     exit 0
 elif [[ "$builtBefore" != "y" && "$builtBefore" != "n" ]]; then
-    echo "❌ Unknown option: $builtBefore"
+    echo "❌ Unknown option: $builtBefore" >&2
     exit 1
 fi
 
-ask_version
-
-# update build name
-buildFile="wordsapp-$VERSION.jar"
-
-# run
-make_jar_file
-
-if [[ ! -d "$buildFileDir" || ! -f "$buildFileDir/$buildFile" ]]; then
-    echo "❌ Couldn't find a jar file here: $buildFileDir/$buildFile"
-    exit 1
-fi
-
-copy_jar_file "$buildFileDir/$buildFile" "."
-compose_build "$mainComposeFile" "$profileComposeFile" "$dockerLogFileFull"
-
-ask_to_prune "$dockerLogFileFull"
+# stop other active containers
+echo "👉 Stopping other running containers"
 docker compose stop
-compose_up "$mainComposeFile" "$profileComposeFile" "$dockerLogFileFull"
 
-rm "$buildFile"
+make_jar_file
+BUILD="$GRADLE_JAR_BUILD_OUTPUT/$APP_NAME-$VERSION.$APP_BUILD_EXT"
+
+# check success
+check_exists_dir "$GRADLE_JAR_BUILD_OUTPUT"
+check_exists "$BUILD"
+echo "✅ Found the build file: '$BUILD'"
+
+# copy jar file from the gradle build dir to the root
+# otherwise Docker can't find .jar file
+copy_jar_file
+
+# build app to the container
+compose_build "$DB_COMPOSE_FILE"
+
+# kill <none> "dangling" images
+ask_to_kill_danglings
+
+# start newly created app and DB in containers
+echo "👉 Starting newly created containers"
+compose_up "$DB_COMPOSE_FILE"
+
+# remove temp build file from the root
+rm "$APP_NAME-$VERSION.$APP_BUILD_EXT"
+echo "✅ Removed temp build file"
 
 echo "🎉 The app is built and runs in the Docker container!"

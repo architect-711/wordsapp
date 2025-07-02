@@ -1,22 +1,19 @@
 #!/bin/bash
 
+# import functions
 source "scripts/utils.sh"
 
+# fail on any error
 set -e
 
-VERSION="0.0.0-SNAPSHOT"
+# check version 
+safe_export_version
 
-# build
+# build jar file
 echo "🔎 Going to build the JAR file, note no tests are done."
-
-ask_version
-
-buildFileFull="build/libs/wordsapp-$VERSION.jar"
-
 make_jar_file
 
-if [ ! -f "$buildFileFull" ]; then
-    echo "❌ Build file not found."
-    exit 1
-fi
-echo "🫵  Checkout the output file here: $buildFileFull"
+# check success
+check_jar_build
+
+echo "🎉 App has been successfully built here: '$GRADLE_JAR_BUILD_OUTPUT/$APP_NAME-$VERSION.$APP_BUILD_EXT'"

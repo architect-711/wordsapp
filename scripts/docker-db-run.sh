@@ -7,24 +7,22 @@ source "scripts/utils.sh"
 set -e
 
 # config
-profile="$1"
-envFile="config/.env.$profile"
-dockerComposeFile="docker-compose.yml"
-profileDockerComposeFile="docker/docker-compose.$profile.yml"
+PROFILE="$1"
+ENV_FILE="$CONFIG_DIR/.env.$PROFILE"
+DB_COMPOSE_PROFILE="$COMPOSE_PROFILE_DIR/docker-compose.$PROFILE.yml"
 
 # check configs
-check_profile "$profile"
-check_env "$envFile" && source "$envFile"
-check_docker_compose_files "$dockerComposeFile" "$profileDockerComposeFile"
+check_profile "$PROFILE"
+check_env "$ENV_FILE" && source "$ENV_FILE"
+check_docker_compose_files "$DB_COMPOSE_PROFILE"
+
+# Stop other containers
+echo "👉 Stopping other active containers"
+docker compose stop
 
 # start database
-echo "✅ Starting database service: db_$profile"
-
-docker compose stop
+echo "👉 Starting database service: 'db_$PROFILE'"
 
 # pass both files because otherwise it creates a standalone, non-compose
 # related container that reserves required ports when running `docker-run.sh`
-docker compose \
-    -f "$dockerComposeFile" -f "$profileDockerComposeFile" \
-    up -d --remove-orphans \
-    "db_$profile" \
+compose_up_one "$DB_COMPOSE_PROFILE" "db_$PROFILE"

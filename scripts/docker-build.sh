@@ -1,57 +1,81 @@
 #!/bin/bash
 
-set -e
+# import functions
 source "scripts/utils.sh"
 
+# fail on any error
+set -e
+
 # config
-export VERSION="0.0.0-SNAPSHOT"
+DB_COMPOSE_PROD="$COMPOSE_PROFILE_DIR/docker-compose.prod.yml"
+DB_COMPOSE_TEST="$COMPOSE_PROFILE_DIR/docker-compose.test.yml"
 
-mainComposeFile="docker-compose.yml"
-profileComposeFile="docker/docker-compose.prod.yml"
+PROD_ENV_FILE="$CONFIG_DIR/.env.prod"
+TEST_ENV_FILE="$CONFIG_DIR/.env.test"
 
-dockerLogDir="logs"
-dockerLogFileFull="$dockerLogDir/docker.log"
+# greet
+echo "🚨 🚨 🚨 Production build 🚨 🚨 🚨"
+echo "🚧 Going to build the app, test is and put it to the tagged with version Docker container!"
 
-echo "🚧 Going to build the app with tests and put it to the tagged Docker container!"
+# leave time to think is it worth it
+function build_duration_message() {
+    for (( i=5 ; i > 0; i-- )) do
+        echo -ne "\r🚨 Build starts in: $i "
+        sleep 1
+    done
+    echo -e "\r🚀 Build starts now! "
+}
+build_duration_message
 
-mkdir -p "$dockerLogDir"
-printf "\n\n\n\n[$(date)] New run of 'docker-build.sh'\n\n" >> "$dockerLogFileFull"
+# create log dir if not done before
+mkdir -p "$LOG_DIR"
+
+# tell about new build
+printf "\n\n\n\n[$(date)] New run of 'docker-build.sh'\n\n" >> "$LOG_DIR/$LOG_FILE"
  
-check_docker_compose_files "$mainComposeFile" "$profileComposeFile"
+# checks
+check_env "$PROD_ENV_FILE"
+check_env "$TEST_ENV_FILE"
 
-function test_app() {
-    local env_test="config/.env.test"
+safe_export_version
 
-    check_env "$env_test"
-    source "$env_test"
+check_docker_compose_files "$DB_COMPOSE_PROD"
+check_docker_compose_files "$DB_COMPOSE_TEST"
+
+test_app() (
+    # TODO hmm, source test config?
+    source "$TEST_ENV_FILE"
 
     echo "👉 Starting test DB container"
-    compose_up_one "$mainComposeFile" "docker/docker-compose.test.yml" "db_test" "$dockerLogFileFull"
-
+    compose_up_one "$DB_COMPOSE_TEST" "db_test"
+    
+    # override DB connection URL for the testing
     export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:${POSTGRES_HOST_PORT}/wordsapp"
 
     echo "👉 Testing app"
-    ./gradlew clean test 1>> "$dockerLogFileFull"
+    ./gradlew clean test 1>> "$LOG_DIR/$LOG_FILE"
 
     echo "🔥 App has been successfully tested!"
-}
+
+    echo "👉 Stopping test containers"
+    bash scripts/docker-stop.sh test >> "$LOG_DIR/$LOG_FILE" >&2
+)
 test_app
 
-bash scripts/docker-stop.sh test >> "$dockerLogFileFull" 2>&1 
-echo "✅ Containers used for testing are stopped"
+# jar file party 
+make_jar_file
+copy_jar_file
 
-ask_version
-make_jar_file 
+source "$PROD_ENV_FILE"
 
-copy_jar_file "build/libs/wordsapp-$VERSION.jar"  .
 echo "👉 Building an image"
-compose_build "$mainComposeFile" "$profileComposeFile" "$dockerLogFileFull"
-rm "wordsapp-$VERSION.jar"
+compose_build "$DB_COMPOSE_PROD"
 
-docker tag "97f5d/wordsapp-backend:latest" "97f5d/wordsapp-backend:$VERSION"
+# remove temp jar file
+echo "👉 Removing temp jar file"
+rm "$APP_NAME-$VERSION.$APP_BUILD_EXT"
 
-ask_to_prune "$dockerLogFileFull"
+# remove "<none>"-named images
+ask_to_kill_danglings
 
-echo "🎉 The production-ready image (97f5d/wordsapp-backend:$VERSION) is ready!"
-
-# build app
+echo "🎉 The production-ready image ($USER/$BACKEND_IMAGE_NAME:$VERSION) is ready!"

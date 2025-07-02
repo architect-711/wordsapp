@@ -1,24 +1,26 @@
 #!/bin/bash
 
-set -e
+# import functions
 source "scripts/utils.sh"
 
+# fail on any error
+set -e
 
 # config
-profile="$1"
-env_file="config/.env.$profile"
+PROFILE="$1"
+ENV_FILE="$CONFIG_DIR/.env.$PROFILE"
 
-mainComposeFile="docker-compose.yml"
-profileComposeFile="docker/docker-compose.$profile.yml"
+DB_COMPOSE_FILE="$COMPOSE_PROFILE_DIR/docker-compose.$PROFILE.yml"
 
+# checks
+check_profile "$PROFILE"
+check_env "$ENV_FILE" && source "$ENV_FILE"
+check_docker_compose_files "$DB_COMPOSE_FILE"
 
 # stop
-check_profile "$profile"
-check_env "$env_file"
-source "$env_file"
-
-check_docker_compose_files "$mainComposeFile" "$profileComposeFile"
-
+echo "👉 Stopping active containers"
 docker compose \
-    -f "$mainComposeFile" -f "$profileComposeFile" \
-    stop
+    -f "$MAIN_COMPOSE_FILE" -f "$DB_COMPOSE_FILE" \
+    stop 
+
+echo "🎉 Stopped containers"
